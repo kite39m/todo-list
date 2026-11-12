@@ -68,6 +68,10 @@
 
     /* radius：按钮与输入框 8px，内容卡片 12px，大容器 16px */
     --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+    /* 与设计系统同名的圆角别名，值仍取上面的短名 */
+    --radius-lg: var(--r-lg);
+    --radius-pill: var(--r-pill);
+    --radius-full: var(--r-pill);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; }
@@ -153,104 +157,105 @@
   .btn-primary:disabled { background: var(--color-primary-disabled); color: var(--color-muted); }
   .hint { font-size: 12px; color: var(--color-muted); text-align: center; margin-top: 16px; }
 
-  /* 输入框聚焦由 .add-bar:focus-within 统一处理 */
-
-  /* ============ 主视图 ============ */
+  /* ============ 主视图：收集箱骨架 ============ */
   .main-view { flex: 1; display: flex; flex-direction: column; }
 
-  /* --- 头部：深色产品面 + 衬线展示标题 --- */
-  .header {
-    background: var(--color-surface-dark); color: var(--color-on-dark);
-    padding: 28px 24px 32px; position: relative;
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
   }
-  .header .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .header .greet {
-    font-family: var(--font-display); font-size: 28px; font-weight: var(--display-weight);
-    letter-spacing: -.3px; color: var(--color-on-dark); line-height: 1.2;
-    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  /* button-icon-circular：36 × 36，画布上用奶油卡拉开层次 */
+  .btn-icon-circular {
+    width: 36px; height: 36px; padding: 0; border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-card); color: var(--color-ink);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-family: var(--font-sans); flex-shrink: 0;
   }
-  .header .greet .date {
-    font-family: var(--font-sans); font-size: 12px; font-weight: 400;
-    color: var(--color-on-dark-soft); letter-spacing: 1px;
-  }
-  /* button-secondary-on-dark */
-  .btn-logout {
-    background: var(--color-surface-dark-elevated); color: var(--color-on-dark);
-    border: 1px solid rgba(250,249,245,.16);
-    padding: 8px 14px; border-radius: var(--r-md); font-size: 13px; font-weight: 500;
-    cursor: pointer; font-family: var(--font-sans); white-space: nowrap; flex-shrink: 0;
-  }
-  .btn-logout:active { background: var(--color-surface-dark-soft); }
-  .stat {
-    display: inline-flex; align-items: baseline; gap: 8px; margin-top: 18px;
-  }
-  .stat .num {
-    font-family: var(--font-display); font-size: 34px; font-weight: var(--display-weight);
-    font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum" 1;
-    letter-spacing: -.5px; color: var(--color-on-dark); line-height: 1;
-  }
-  .stat .lbl { font-size: 13px; color: var(--color-on-dark-soft); }
+  .btn-icon-circular:active { background: var(--color-surface-cream-strong); }
+  .btn-icon-circular svg { width: 18px; height: 18px; }
 
-  /* --- 快速添加条：细线输入框，色块优先不用阴影 --- */
-  .add-bar {
-    margin: 18px 20px 0; background: var(--color-canvas); border: 1px solid var(--color-hairline);
-    border-radius: var(--r-lg); padding: 6px; display: flex; gap: 8px; align-items: center;
+  /* 本页唯一标题：display-sm，衬线、负字距、不加粗 */
+  .page-title {
+    font-family: var(--font-display); font-size: 28px; font-weight: var(--display-weight);
+    letter-spacing: -.3px; line-height: 1.2; color: var(--color-ink);
+    padding: var(--space-sm) var(--space-md) 0; margin-bottom: var(--space-lg);
   }
-  .add-bar:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(204,120,92,.18); }
-  .add-bar input {
-    flex: 1; border: none; outline: none; font-size: 16px; font-family: var(--font-sans);
-    padding: 9px 8px; background: transparent; color: var(--color-ink); min-width: 0;
-  }
-  .add-bar input::placeholder { color: var(--color-muted); }
-  .btn-add {
-    background: var(--color-primary); color: var(--color-on-primary); border: none;
-    width: 38px; height: 38px; border-radius: var(--r-md); font-size: 22px; font-weight: 500; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 1;
-  }
-  .btn-add:active { background: var(--color-primary-active); transform: scale(0.96); }
-  .btn-add:disabled { background: var(--color-primary-disabled); color: var(--color-muted); cursor: not-allowed; }
 
   /* --- 任务列表区 --- */
-  .list { flex: 1; padding: 26px 20px 32px; }
-  .list h2 {
-    font-family: var(--font-sans); font-size: 12px; color: var(--color-muted);
-    font-weight: 500; letter-spacing: 1.5px;
-    margin: 4px 2px 14px;
+  .list { flex: 1; padding: 0 var(--space-md) calc(var(--space-section) + var(--space-xxl) + var(--space-md)); }
+
+  /* 点 + 才出现的添加行，不常驻在顶部 */
+  .add-row {
+    background: var(--color-surface-card); border-radius: var(--radius-lg);
+    padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-xs);
+    display: flex; align-items: center;
+  }
+  .add-row input {
+    flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+    font-size: 16px; font-family: var(--font-sans); color: var(--color-ink); line-height: 1.55;
   }
 
-  /* feature-card：奶油卡比画布深一档，无阴影 */
   .todo-item {
-    background: var(--color-surface-card); border: none; border-radius: var(--r-md);
-    padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+    background: var(--color-surface-card); border: none; border-radius: var(--radius-lg);
+    padding: var(--space-sm) var(--space-md); display: flex; align-items: center;
+    gap: var(--space-sm); margin-bottom: var(--space-xs);
     animation: slideIn .22s ease;
   }
   @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
   .checkbox {
-    width: 20px; height: 20px; border-radius: var(--r-sm); border: 1.5px solid var(--color-surface-cream-strong);
+    width: 20px; height: 20px; border-radius: var(--r-sm);
+    border: 1.5px solid var(--color-surface-cream-strong);
     cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    transition: all .15s ease; color: transparent;
+    transition: border-color .15s ease, background-color .15s ease; color: transparent;
   }
-  .checkbox:hover { border-color: var(--color-primary); }
+  .checkbox:active { border-color: var(--color-ink); }
   .checkbox svg { width: 11px; height: 11px; }
-  .todo-item.done .checkbox { background: var(--color-success); border-color: var(--color-success); color: var(--color-on-primary); }
-  .todo-text { flex: 1; font-size: 16px; line-height: 1.55; word-break: break-word; color: var(--color-body-strong); }
+  .todo-item.done .checkbox { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-on-primary); }
+  .todo-text {
+    flex: 1; min-width: 0; font-size: 16px; line-height: 1.55; word-break: break-word;
+    color: var(--color-ink); font-family: var(--font-sans);
+  }
   .todo-item.done .todo-text { color: var(--color-muted); text-decoration: line-through; }
   .btn-del {
-    background: none; border: none; color: var(--color-muted-soft); cursor: pointer; padding: 4px;
-    font-size: 16px; flex-shrink: 0; border-radius: var(--r-sm);
+    background: none; border: none; color: var(--color-muted-soft); cursor: pointer;
+    padding: var(--space-xxs); flex-shrink: 0; border-radius: var(--r-sm);
     display: flex; align-items: center; justify-content: center;
-    transition: color .15s ease, background-color .15s ease;
   }
-  .btn-del:hover { color: var(--color-error); background: rgba(198,69,69,0.08); }
+  .btn-del:active { color: var(--color-ink); }
 
-  .empty {
-    text-align: center; padding: 48px 20px; color: var(--color-muted);
+  /* 悬浮层与 .app 同宽，作为导航和 + 的定位锚点 */
+  .dock {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: var(--space-lg); width: 100%; max-width: 560px; height: 0;
+    pointer-events: none; z-index: 30;
   }
-  .empty svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: .38; }
-  .empty p { font-size: 15px; font-weight: 500; color: var(--color-ink); }
-  .empty .sub { font-size: 13px; margin-top: 6px; opacity: .8; }
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: var(--space-xxs);
+    padding: var(--space-xs); background: var(--color-surface-dark);
+    border-radius: var(--radius-pill); pointer-events: auto;
+  }
+  .nav-btn {
+    width: 40px; height: 40px; padding: 0; border: none; border-radius: var(--radius-full);
+    background: transparent; color: var(--color-on-dark); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-sans);
+  }
+  .nav-btn svg { width: 20px; height: 20px; }
+  .nav-btn:active { background: var(--color-surface-dark-elevated); }
+  .nav-btn.is-current { background: var(--color-primary); color: var(--color-on-primary); }
+  .nav-btn.is-current:active { background: var(--color-primary-active); }
 
-  .loading { text-align: center; padding: 40px 20px; color: var(--color-muted); font-size: 14px; }
+  .fab {
+    position: absolute; right: var(--space-md); bottom: calc(var(--space-xxl) + var(--space-lg));
+    width: 48px; height: 48px; padding: 0; border: none; border-radius: var(--radius-full);
+    background: var(--color-primary); color: var(--color-on-primary);
+    font-family: var(--font-sans); font-size: 28px; font-weight: 400; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; pointer-events: auto;
+  }
+  .fab:active { background: var(--color-primary-active); }
 
   /* 全局提示：深色面 + 胶囊圆角 */
   .toast {
@@ -261,14 +266,11 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--color-error); }
+  /* 主视图里提示上移，避开底部胶囊导航 */
+  body:has(.main-view:not(.hidden)) .toast { bottom: var(--space-section); }
 
   @media (min-width: 600px) {
     .app { border-left: 1px solid var(--color-hairline); border-right: 1px solid var(--color-hairline); min-height: 100vh; }
-    .header { padding: 30px 28px 34px; }
-    .list { padding: 22px 24px 40px; }
-    /* 内容居中并控制最大宽度 */
-    .add-bar, .list { max-width: 520px; margin-left: auto; margin-right: auto; }
-    .add-bar { margin: 18px auto 0; }
   }
   </style>
 </head>
@@ -313,36 +315,46 @@
 
   <!-- 主视图 -->
   <div class="main-view hidden" id="mainView" data-page-node-id="Ic9n7IQ2p9AVN7nuH8bcUO">
-    <div class="header" data-page-node-id="JHuOg5gBVFp5t2jx1GIZhL">
-      <div class="top" data-page-node-id="cBqZjbbKCPESD3DEwjWzIx">
-        <div class="greet" data-page-node-id="42HWT3S2zBPYN15UoplHC4">
-          <span id="greetName" data-page-node-id="jmp4CkVFEOcYDXp0POrgfD">你好</span>
-          <span class="date" id="todayDate" data-page-node-id="jfDAHc7PAfazDQRdZJqqIU"></span>
-        </div>
-        <button class="btn-logout" id="logoutBtn" data-page-node-id="cVLpuk0PZQsfPxaF60rNes">退出登录</button>
-      </div>
-      <div class="stat" data-page-node-id="58iqDQCGaoq08NPqltBDBo">
-        <span class="num" id="remainingCount" data-page-node-id="3IuwUV6Ca0Dx2UEOmNLrVf">0</span>
-        <span class="lbl" data-page-node-id="RAaYG2Zxf0NaphVrftb2K8">项未完成</span>
-      </div>
+    <div class="topbar" data-page-node-id="JHuOg5gBVFp5t2jx1GIZhL">
+      <button class="btn-icon-circular" id="menuBtn" type="button" aria-label="菜单" data-page-node-id="cBqZjbbKCPESD3DEwjWzIx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" data-page-node-id="42HWT3S2zBPYN15UoplHC4"><path d="M4 7h16M4 12h16M4 17h16" data-page-node-id="jmp4CkVFEOcYDXp0POrgfD"/></svg>
+      </button>
+      <button class="btn-icon-circular" id="moreBtn" type="button" aria-label="更多" data-page-node-id="jfDAHc7PAfazDQRdZJqqIU">
+        <svg viewBox="0 0 24 24" fill="currentColor" data-page-node-id="58iqDQCGaoq08NPqltBDBo"><circle cx="5" cy="12" r="2" data-page-node-id="3IuwUV6Ca0Dx2UEOmNLrVf"/><circle cx="12" cy="12" r="2" data-page-node-id="RAaYG2Zxf0NaphVrftb2K8"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
     </div>
 
-    <div class="add-bar" data-page-node-id="drID2YATQC4W2w4CVILpF2">
-      <input type="text" id="newTodo" placeholder="添加今日任务，回车确认" maxlength="200" data-page-node-id="L4P5fy9WSqO5JGt54N3gTD" />
-      <button class="btn-add" id="addBtn" title="添加" data-page-node-id="tE1vZm8ljWKCWiC3FPdMHL">+</button>
-    </div>
+    <h1 class="page-title" data-page-node-id="1z76lVHn9BsELcReBF0vz2">收集箱</h1>
 
     <div class="list" data-page-node-id="kYA5hWG9RDCHcfMuz03Jar">
-      <h2 data-page-node-id="1z76lVHn9BsELcReBF0vz2">今日任务</h2>
-      <div id="loading" class="loading" data-page-node-id="YmuwrLGbE1ITO2H3lpKzK1">加载中…</div>
-      <div id="empty" class="empty hidden" data-page-node-id="kxaIkX2rMvFo2rsmSQY7Zt">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#8e8b82" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="EDshkHWWjpQNKi1vZLvcIE">
-          <path d="M9 11l3 3L22 4" data-page-node-id="2EiuyrlZrq7FDZ0d2RPwEu"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" data-page-node-id="EKn2HHzD75trCTEKW4CrCx"/>
-        </svg>
-        <p data-page-node-id="OEipVVuVVC84lAWOFprBpq">今天还没有任务</p>
-        <p class="sub" data-page-node-id="3EQMOXx6DhCJnJq630DW8P">在上方输入框添加一条任务吧</p>
+      <div class="add-row hidden" id="addRow" data-page-node-id="drID2YATQC4W2w4CVILpF2">
+        <input type="text" id="newTodo" maxlength="200" data-page-node-id="L4P5fy9WSqO5JGt54N3gTD" />
       </div>
       <div id="todoList" data-page-node-id="LGt0z33pGU4Cl33IL5rrE5"></div>
+    </div>
+
+    <!-- 退出登录入口待接入菜单，先保留按钮使登录逻辑不变 -->
+    <button class="hidden" id="logoutBtn" type="button" data-page-node-id="cVLpuk0PZQsfPxaF60rNes">退出登录</button>
+
+    <div class="dock" data-page-node-id="YmuwrLGbE1ITO2H3lpKzK1">
+      <nav class="bottom-nav" data-page-node-id="kxaIkX2rMvFo2rsmSQY7Zt">
+        <button class="nav-btn is-current" type="button" aria-label="收集箱" data-page-node-id="EDshkHWWjpQNKi1vZLvcIE">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="2EiuyrlZrq7FDZ0d2RPwEu"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg>
+        </button>
+        <button class="nav-btn" type="button" aria-label="日历" data-page-node-id="EKn2HHzD75trCTEKW4CrCx">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="OEipVVuVVC84lAWOFprBpq"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        </button>
+        <button class="nav-btn" type="button" aria-label="四宫格" data-page-node-id="3EQMOXx6DhCJnJq630DW8P">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
+        </button>
+        <button class="nav-btn" type="button" aria-label="靶心">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button class="nav-btn" type="button" aria-label="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </button>
+      </nav>
+      <button class="fab" id="addBtn" type="button" data-page-node-id="tE1vZm8ljWKCWiC3FPdMHL">+</button>
     </div>
   </div>
 </div>
@@ -362,6 +374,14 @@
   var phoneInput = $('phone'), codeInput = $('code');
   var pendingOtp = null;
   var todos = [];
+
+  // 悬浮「+」兼作新增行的开关与提交键，避免在顶部常驻输入框
+  var addOpen = false;
+  function setAddOpen(open) {
+    addOpen = open;
+    $('addRow').classList.toggle('hidden', !open);
+    if (open) $('newTodo').focus();
+  }
 
   // 提示
   var toastTimer = null;
@@ -497,25 +517,14 @@
   function enterApp() {
     loginView.classList.add('hidden');
     mainView.classList.remove('hidden');
-    var d = new Date();
-    var week = ['日','一','二','三','四','五','六'];
-    $('todayDate').textContent = (d.getMonth()+1) + '月' + d.getDate() + '日 · 星期' + week[d.getDay()];
     loadTodos();
-  }
-
-  function updateGreeting(session) {
-    var name = session && session.user && session.user.name;
-    $('greetName').textContent = name ? ('你好，' + name) : '你好';
   }
 
   // 加载任务
   function loadTodos() {
-    $('loading').classList.remove('hidden');
-    $('empty').classList.add('hidden');
     $('todoList').innerHTML = '';
     cloud.database.from('todos').select('*').order('created_at', { ascending: true })
       .then(function (res) {
-        $('loading').classList.add('hidden');
         if (res.error) {
           toast('加载失败，请重试', true);
           return;
@@ -523,7 +532,6 @@
         todos = res.data || [];
         render();
       }).catch(function () {
-        $('loading').classList.add('hidden');
         toast('网络异常，请重试', true);
       });
   }
@@ -531,13 +539,6 @@
   function render() {
     var list = $('todoList');
     list.innerHTML = '';
-    var remaining = todos.filter(function (t) { return !t.done; }).length;
-    $('remainingCount').textContent = remaining;
-    if (todos.length === 0) {
-      $('empty').classList.remove('hidden');
-      return;
-    }
-    $('empty').classList.add('hidden');
     todos.forEach(function (t) {
       list.appendChild(buildItem(t));
     });
@@ -590,6 +591,7 @@
           todos.push(res.data[0]);
           render();
           input.value = '';
+          setAddOpen(false);
         }
       }).catch(function () {
         btn.disabled = false;
@@ -597,8 +599,14 @@
       });
   }
 
-  $('addBtn').addEventListener('click', addTodo);
-  $('newTodo').addEventListener('keydown', function (e) { if (e.key === 'Enter') addTodo(); });
+  $('addBtn').addEventListener('click', function () {
+    if (!addOpen) { setAddOpen(true); return; }
+    addTodo();
+  });
+  $('newTodo').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') addTodo();
+    if (e.key === 'Escape') setAddOpen(false);
+  });
 
   // 切换完成状态
   function toggleTodo(t) {
@@ -631,7 +639,6 @@
       mainView.classList.add('hidden');
       return;
     }
-    updateGreeting(res.data);
     enterApp();
   }).catch(function () {
     loginView.classList.remove('hidden');
