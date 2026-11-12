@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="2hyJRbUmmDDIvV83yumdgn">
+<head data-page-node-id="5F7CDeZatoTTpa3Iuj9vw8">
+<meta charset="UTF-8" data-page-node-id="UKJqoWs6XAPdcGgcoooZB6" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="lv6h9XhqwMVkkQ328IeMJt" />
+  <meta name="theme-color" content="#faf9f5" data-page-node-id="dJM7IznMP6HVN30iixhcWv" />
+  <title>今日待办清单</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+  /* Warm Canvas · design tokens (alpha) —— 奶油画布 / 珊瑚 / 深色产品面 */
+  :root {
+    /* colors */
+    --color-primary: #cc785c;
+    --color-primary-active: #a9583e;
+    --color-primary-disabled: #e6dfd8;
+    --color-ink: #141413;
+    --color-body: #3d3d3a;
+    --color-body-strong: #252523;
+    --color-muted: #6c6a64;
+    --color-muted-soft: #8e8b82;
+    --color-hairline: #e6dfd8;
+    --color-hairline-soft: #ebe6df;
+    --color-canvas: #faf9f5;
+    --color-surface-soft: #f5f0e8;
+    --color-surface-card: #efe9de;
+    --color-surface-cream-strong: #e8e0d2;
+    --color-surface-dark: #181715;
+    --color-surface-dark-elevated: #252320;
+    --color-surface-dark-soft: #1f1e1b;
+    --color-on-primary: #ffffff;
+    --color-on-dark: #faf9f5;
+    --color-on-dark-soft: #a09d96;
+    --color-success: #5db872;
+    --color-warning: #d4a017;
+    --color-error: #c64545;
+
+    /* 应用内部短名，全部指向 Warm Canvas 令牌 */
+    --primary: var(--color-primary);
+    --primary-active: var(--color-primary-active);
+    --primary-disabled: var(--color-primary-disabled);
+    --ink: var(--color-ink);
+    --body: var(--color-body);
+    --muted: var(--color-muted);
+    --hairline: var(--color-hairline);
+    --hairline-soft: var(--color-hairline-soft);
+    --canvas: var(--color-canvas);
+    --surface-card: var(--color-surface-card);
+    --surface-soft: var(--color-surface-soft);
+    --surface-dark: var(--color-surface-dark);
+    --surface-dark-elevated: var(--color-surface-dark-elevated);
+    --on-dark: var(--color-on-dark);
+    --on-dark-soft: var(--color-on-dark-soft);
+    --success: var(--color-success);
+    --error: var(--color-error);
+
+    /* font families（含中文回退） */
+    --font-display: "Copernicus", "Tiempos Headline", "Cormorant Garamond", Garamond, "Noto Serif SC", "Songti SC", "Times New Roman", serif;
+    --font-sans: "StyreneB", Inter, "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --display-weight: 500;
+
+    /* spacing（基础步长 4px） */
+    --space-xxs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px;
+    --space-lg: 24px; --space-xl: 32px; --space-xxl: 48px; --space-section: 96px;
+
+    /* radius：按钮与输入框 8px，内容卡片 12px，大容器 16px */
+    --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--canvas);
+    color: var(--body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 560px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--canvas); }
+  .hidden { display: none !important; }
+
+  /* 登录视图 —— 奶油画布为底，衬线字标不加粗 */
+  .login-view {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 40px 24px; flex: 1;
+  }
+  .brand { text-align: center; margin-bottom: 32px; }
+  .brand .logo {
+    width: 56px; height: 56px; border-radius: var(--r-lg); margin: 0 auto 14px;
+    background: var(--color-primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand .logo svg { width: 30px; height: 30px; }
+  .brand h1 { font-family: var(--font-display); font-size: 36px; font-weight: var(--display-weight); letter-spacing: -.5px; color: var(--color-ink); line-height: 1.15; }
+  .brand p { font-size: 14px; color: var(--color-muted); margin-top: 8px; }
+
+  /* 表单：无卡片外壳，居中、宽度适中 */
+  .login-form { width: 100%; max-width: 400px; margin: 0 auto; }
+  .login-fields { display: flex; flex-direction: column; gap: 12px; }
+
+  /* 细线输入条：奶油表面 + 8px 圆角，不用纯白 */
+  .login-row {
+    display: flex; align-items: center; gap: 12px;
+    height: 54px; padding: 0 16px;
+    background: var(--color-surface-soft); border: 1px solid var(--color-hairline-soft); border-radius: var(--r-md);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .login-row:focus-within {
+    border-color: var(--color-primary); background: var(--color-canvas);
+    box-shadow: 0 0 0 3px rgba(204,120,92,.18);
+  }
+  .region { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .region-code { font-size: 16px; font-weight: 500; color: var(--color-ink); }
+  .region-arrow { width: 12px; height: 12px; color: var(--color-muted); flex-shrink: 0; }
+  .row-divider { width: 1px; height: 22px; background: rgba(20,20,19,0.14); flex-shrink: 0; }
+
+  .login-row input[type="tel"], .login-row input[type="text"] {
+    flex: 1; min-width: 0; width: auto;
+    border: none; outline: none; background: transparent; padding: 0;
+    font-size: 16px; font-family: var(--font-sans); color: var(--color-ink); line-height: 1.55;
+  }
+  .login-row input::placeholder { color: var(--color-muted); opacity: 1; }
+
+  /* button-text-link：小字号改用 ink，避开珊瑚色对比度不足 */
+  .btn-code-inline {
+    background: none; border: none; cursor: pointer; flex-shrink: 0;
+    color: var(--color-ink); font-size: 14px; font-weight: 600;
+    font-family: var(--font-sans); white-space: nowrap;
+    padding: 8px 0 8px 12px;
+  }
+  .btn-code-inline:disabled { color: var(--color-muted); cursor: not-allowed; }
+
+  /* 错误提示：空时不占位，保持紧凑 */
+  .field-error, .error-msg { font-size: 12.5px; color: var(--color-error); margin-top: 8px; }
+  .field-error:empty, .error-msg:empty { display: none; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 12px 20px; font-size: 14px; font-weight: 500; line-height: 1;
+    border: none; border-radius: var(--r-md); cursor: pointer;
+    transition: background-color .15s ease, transform .05s; white-space: nowrap; font-family: var(--font-sans);
+  }
+  .btn:active { transform: scale(0.99); }
+  .btn:disabled { cursor: not-allowed; }
+  /* button-primary：白字在珊瑚色上仅 3.28:1，按规范放大加粗；只定义默认态与按下态 */
+  .btn-primary {
+    background: var(--color-primary); color: var(--color-on-primary); width: 100%; height: 48px;
+    border-radius: var(--r-md); margin-top: 20px; font-size: 16px; font-weight: 600;
+  }
+  .btn-primary:active { background: var(--color-primary-active); }
+  .btn-primary:disabled { background: var(--color-primary-disabled); color: var(--color-muted); }
+  .hint { font-size: 12px; color: var(--color-muted); text-align: center; margin-top: 16px; }
+
+  /* 输入框聚焦由 .add-bar:focus-within 统一处理 */
+
+  /* ============ 主视图 ============ */
+  .main-view { flex: 1; display: flex; flex-direction: column; }
+
+  /* --- 头部：深色产品面 + 衬线展示标题 --- */
+  .header {
+    background: var(--color-surface-dark); color: var(--color-on-dark);
+    padding: 28px 24px 32px; position: relative;
+  }
+  .header .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .header .greet {
+    font-family: var(--font-display); font-size: 28px; font-weight: var(--display-weight);
+    letter-spacing: -.3px; color: var(--color-on-dark); line-height: 1.2;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .header .greet .date {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 400;
+    color: var(--color-on-dark-soft); letter-spacing: 1px;
+  }
+  /* button-secondary-on-dark */
+  .btn-logout {
+    background: var(--color-surface-dark-elevated); color: var(--color-on-dark);
+    border: 1px solid rgba(250,249,245,.16);
+    padding: 8px 14px; border-radius: var(--r-md); font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: var(--font-sans); white-space: nowrap; flex-shrink: 0;
+  }
+  .btn-logout:active { background: var(--color-surface-dark-soft); }
+  .stat {
+    display: inline-flex; align-items: baseline; gap: 8px; margin-top: 18px;
+  }
+  .stat .num {
+    font-family: var(--font-display); font-size: 34px; font-weight: var(--display-weight);
+    font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum" 1;
+    letter-spacing: -.5px; color: var(--color-on-dark); line-height: 1;
+  }
+  .stat .lbl { font-size: 13px; color: var(--color-on-dark-soft); }
+
+  /* --- 快速添加条：细线输入框，色块优先不用阴影 --- */
+  .add-bar {
+    margin: 18px 20px 0; background: var(--color-canvas); border: 1px solid var(--color-hairline);
+    border-radius: var(--r-lg); padding: 6px; display: flex; gap: 8px; align-items: center;
+  }
+  .add-bar:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(204,120,92,.18); }
+  .add-bar input {
+    flex: 1; border: none; outline: none; font-size: 16px; font-family: var(--font-sans);
+    padding: 9px 8px; background: transparent; color: var(--color-ink); min-width: 0;
+  }
+  .add-bar input::placeholder { color: var(--color-muted); }
+  .btn-add {
+    background: var(--color-primary); color: var(--color-on-primary); border: none;
+    width: 38px; height: 38px; border-radius: var(--r-md); font-size: 22px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 1;
+  }
+  .btn-add:active { background: var(--color-primary-active); transform: scale(0.96); }
+  .btn-add:disabled { background: var(--color-primary-disabled); color: var(--color-muted); cursor: not-allowed; }
+
+  /* --- 任务列表区 --- */
+  .list { flex: 1; padding: 26px 20px 32px; }
+  .list h2 {
+    font-family: var(--font-sans); font-size: 12px; color: var(--color-muted);
+    font-weight: 500; letter-spacing: 1.5px;
+    margin: 4px 2px 14px;
+  }
+
+  /* feature-card：奶油卡比画布深一档，无阴影 */
+  .todo-item {
+    background: var(--color-surface-card); border: none; border-radius: var(--r-md);
+    padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+    animation: slideIn .22s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .checkbox {
+    width: 20px; height: 20px; border-radius: var(--r-sm); border: 1.5px solid var(--color-surface-cream-strong);
+    cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all .15s ease; color: transparent;
+  }
+  .checkbox:hover { border-color: var(--color-primary); }
+  .checkbox svg { width: 11px; height: 11px; }
+  .todo-item.done .checkbox { background: var(--color-success); border-color: var(--color-success); color: var(--color-on-primary); }
+  .todo-text { flex: 1; font-size: 16px; line-height: 1.55; word-break: break-word; color: var(--color-body-strong); }
+  .todo-item.done .todo-text { color: var(--color-muted); text-decoration: line-through; }
+  .btn-del {
+    background: none; border: none; color: var(--color-muted-soft); cursor: pointer; padding: 4px;
+    font-size: 16px; flex-shrink: 0; border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    transition: color .15s ease, background-color .15s ease;
+  }
+  .btn-del:hover { color: var(--color-error); background: rgba(198,69,69,0.08); }
+
+  .empty {
+    text-align: center; padding: 48px 20px; color: var(--color-muted);
+  }
+  .empty svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: .38; }
+  .empty p { font-size: 15px; font-weight: 500; color: var(--color-ink); }
+  .empty .sub { font-size: 13px; margin-top: 6px; opacity: .8; }
+
+  .loading { text-align: center; padding: 40px 20px; color: var(--color-muted); font-size: 14px; }
+
+  /* 全局提示：深色面 + 胶囊圆角 */
+  .toast {
+    position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%) translateY(20px);
+    background: var(--color-surface-dark); color: var(--color-on-dark); padding: 11px 22px; border-radius: var(--r-pill);
+    font-size: 14px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 999;
+    max-width: 90%; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--color-error); }
+
+  @media (min-width: 600px) {
+    .app { border-left: 1px solid var(--color-hairline); border-right: 1px solid var(--color-hairline); min-height: 100vh; }
+    .header { padding: 30px 28px 34px; }
+    .list { padding: 22px 24px 40px; }
+    /* 内容居中并控制最大宽度 */
+    .add-bar, .list { max-width: 520px; margin-left: auto; margin-right: auto; }
+    .add-bar { margin: 18px auto 0; }
+  }
+  </style>
+</head>
+<body data-page-node-id="Avy4mDa2MRYgZadxa6Rz2a">
+<div class="app" data-page-node-id="IZUgqNnpBQcR55dvyCBKcS">
+  <!-- 登录视图 -->
+  <div class="login-view" id="loginView" data-page-node-id="9wz6jQWqCkpu2R1rutAwnL">
+    <div class="brand" data-page-node-id="ph0RAimwbFLgIlUVlvWLbo">
+      <div class="logo" data-page-node-id="yGP2tyzeGtX2aBCO3k0bNE">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#faf9f5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="CaKm58GIhNdZ1Pz4UBOcjM">
+          <path d="M9 11l3 3L22 4" data-page-node-id="fyhNGc1SmMVp0C3LdOI0up"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" data-page-node-id="5B3VW6YKPiFHPdGQtOwxLc"/>
+        </svg>
+      </div>
+      <h1 data-page-node-id="jswDQ5DVAMmaRSArxScUK3">今日待办清单</h1>
+      <p data-page-node-id="91AHhz7hMHF9uqQtQ2VOs1">手机号验证码登录，任务云端同步</p>
+    </div>
+    <div class="login-form" data-page-node-id="fX6eFUbcMUBWAIZlofhaKG">
+      <div class="login-fields">
+        <!-- 手机号 -->
+        <div class="login-row" data-page-node-id="VDbHJxEBSIEd1NOMtlgfUG">
+          <div class="region">
+            <span class="region-code">+86</span>
+            <svg class="region-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <span class="row-divider"></span>
+          <input type="tel" id="phone" placeholder="请输入手机号" inputmode="numeric" autocomplete="tel" data-page-node-id="NR98ZAtBxHBvrUXayHYqDZ" />
+        </div>
+        <!-- 验证码 -->
+        <div class="login-row" data-page-node-id="pr2rlkMLUcRDzzUu6XDHaw">
+          <input type="text" id="code" placeholder="请输入验证码" maxlength="6" inputmode="numeric" autocomplete="one-time-code" data-page-node-id="YHGXB2hr1EEFpUAWWcHUWA" />
+          <button class="btn-code-inline" id="sendCodeBtn" type="button" data-page-node-id="kexILYWtjhUojmAZSkrG6O">获取验证码</button>
+        </div>
+      </div>
+      <div class="login-errors">
+        <div class="field-error" id="phoneError" data-page-node-id="14LwmwdJkNZ86nLJUpxuRe"></div>
+        <div class="error-msg" id="loginError" data-page-node-id="Xms873ruhjYLG0v0Z9LY7y"></div>
+      </div>
+      <button class="btn btn-primary" id="loginBtn" data-page-node-id="pmH6xZo74o2l5dtojEPkD3">登录 / 注册</button>
+    </div>
+    <p class="hint" data-page-node-id="EfUm6CtE7cpgGWOQuitENp">未注册的手机号验证后将自动创建账号</p>
+  </div>
+
+  <!-- 主视图 -->
+  <div class="main-view hidden" id="mainView" data-page-node-id="Ic9n7IQ2p9AVN7nuH8bcUO">
+    <div class="header" data-page-node-id="JHuOg5gBVFp5t2jx1GIZhL">
+      <div class="top" data-page-node-id="cBqZjbbKCPESD3DEwjWzIx">
+        <div class="greet" data-page-node-id="42HWT3S2zBPYN15UoplHC4">
+          <span id="greetName" data-page-node-id="jmp4CkVFEOcYDXp0POrgfD">你好</span>
+          <span class="date" id="todayDate" data-page-node-id="jfDAHc7PAfazDQRdZJqqIU"></span>
+        </div>
+        <button class="btn-logout" id="logoutBtn" data-page-node-id="cVLpuk0PZQsfPxaF60rNes">退出登录</button>
+      </div>
+      <div class="stat" data-page-node-id="58iqDQCGaoq08NPqltBDBo">
+        <span class="num" id="remainingCount" data-page-node-id="3IuwUV6Ca0Dx2UEOmNLrVf">0</span>
+        <span class="lbl" data-page-node-id="RAaYG2Zxf0NaphVrftb2K8">项未完成</span>
+      </div>
+    </div>
+
+    <div class="add-bar" data-page-node-id="drID2YATQC4W2w4CVILpF2">
+      <input type="text" id="newTodo" placeholder="添加今日任务，回车确认" maxlength="200" data-page-node-id="L4P5fy9WSqO5JGt54N3gTD" />
+      <button class="btn-add" id="addBtn" title="添加" data-page-node-id="tE1vZm8ljWKCWiC3FPdMHL">+</button>
+    </div>
+
+    <div class="list" data-page-node-id="kYA5hWG9RDCHcfMuz03Jar">
+      <h2 data-page-node-id="1z76lVHn9BsELcReBF0vz2">今日任务</h2>
+      <div id="loading" class="loading" data-page-node-id="YmuwrLGbE1ITO2H3lpKzK1">加载中…</div>
+      <div id="empty" class="empty hidden" data-page-node-id="kxaIkX2rMvFo2rsmSQY7Zt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8e8b82" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="EDshkHWWjpQNKi1vZLvcIE">
+          <path d="M9 11l3 3L22 4" data-page-node-id="2EiuyrlZrq7FDZ0d2RPwEu"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" data-page-node-id="EKn2HHzD75trCTEKW4CrCx"/>
+        </svg>
+        <p data-page-node-id="OEipVVuVVC84lAWOFprBpq">今天还没有任务</p>
+        <p class="sub" data-page-node-id="3EQMOXx6DhCJnJq630DW8P">在上方输入框添加一条任务吧</p>
+      </div>
+      <div id="todoList" data-page-node-id="LGt0z33pGU4Cl33IL5rrE5"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" data-page-node-id="cJkCPg8EAl8nZQAmmun5lX"></div>
+
+<script>
+(function () {
+  var cloud = WorkBuddyCloud.createWorkBuddyCloud({
+    endpoint: "https://today-todo-99131.app.workbuddy.host",
+    oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
+    publishableKey: "wbpk_UU7TdoISAoZuBRmNHn903f_p43OwbQku6XtW2MHFxurod3W6Mkj4mfo"
+  });
+
+  var $ = function (id) { return document.getElementById(id); };
+  var loginView = $('loginView'), mainView = $('mainView');
+  var phoneInput = $('phone'), codeInput = $('code');
+  var pendingOtp = null;
+  var todos = [];
+
+  // 提示
+  var toastTimer = null;
+  function toast(msg, isError) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.className = 'toast'; }, 2600);
+  }
+
+  function showLoginError(msg) { $('loginError').textContent = msg || ''; }
+
+  // 手机号：3-4-4 空格分组显示，提交时还原为纯数字
+  function formatPhone(value) {
+    var d = value.replace(/\D/g, '').slice(0, 11);
+    var parts = [];
+    if (d.length > 0) parts.push(d.slice(0, 3));
+    if (d.length > 3) parts.push(d.slice(3, 7));
+    if (d.length > 7) parts.push(d.slice(7, 11));
+    return parts.join(' ');
+  }
+  function getPhoneDigits() { return phoneInput.value.replace(/\D/g, ''); }
+
+  // 输入时分组格式化，并保持光标位置
+  phoneInput.addEventListener('input', function () {
+    var el = this;
+    var cursor = el.selectionStart || 0;
+    var digitsBefore = el.value.slice(0, cursor).replace(/\D/g, '').length;
+    var formatted = formatPhone(el.value);
+    el.value = formatted;
+    var pos = 0, count = 0;
+    while (pos < formatted.length && count < digitsBefore) {
+      if (/\d/.test(formatted.charAt(pos))) count++;
+      pos++;
+    }
+    try { el.setSelectionRange(pos, pos); } catch (e) {}
+    $('phoneError').textContent = '';
+  });
+
+  // 获取验证码
+  var countdown = 0, cdTimer = null;
+  $('sendCodeBtn').addEventListener('click', function () {
+    var phone = getPhoneDigits();
+    if (!/^1\d{10}$/.test(phone)) {
+      $('phoneError').textContent = '请输入正确的 11 位手机号';
+      return;
+    }
+    $('phoneError').textContent = '';
+    var btn = $('sendCodeBtn');
+    btn.disabled = true;
+    showLoginError('');
+    cloud.auth.sendOtp({ phone: phone }).then(function (res) {
+      if (res.error) {
+        btn.disabled = false;
+        showLoginError(res.error.message || '验证码发送失败，请重试');
+        return;
+      }
+      pendingOtp = { phone: phone, verificationId: res.data.verificationId, isExistingUser: res.data.isExistingUser };
+      toast('验证码已发送');
+      startCountdown(btn);
+    }).catch(function () {
+      btn.disabled = false;
+      showLoginError('网络异常，请稍后重试');
+    });
+  });
+
+  function startCountdown(btn) {
+    countdown = 60;
+    btn.textContent = countdown + 's';
+    cdTimer = setInterval(function () {
+      countdown--;
+      if (countdown <= 0) {
+        clearInterval(cdTimer);
+        btn.disabled = false;
+        btn.textContent = '获取验证码';
+      } else {
+        btn.textContent = countdown + 's';
+      }
+    }, 1000);
+  }
+
+  // 登录 / 注册
+  $('loginBtn').addEventListener('click', function () {
+    var phone = getPhoneDigits();
+    var code = codeInput.value.trim();
+    if (!/^1\d{10}$/.test(phone)) {
+      $('phoneError').textContent = '请输入正确的 11 位手机号';
+      return;
+    }
+    if (!code) { showLoginError('请输入验证码'); return; }
+    if (!pendingOtp || pendingOtp.phone !== phone) {
+      showLoginError('请先获取当前手机号的验证码');
+      return;
+    }
+    var btn = $('loginBtn');
+    btn.disabled = true;
+    showLoginError('');
+    cloud.auth.verifyOtp({
+      phone: pendingOtp.phone,
+      verificationId: pendingOtp.verificationId,
+      isExistingUser: pendingOtp.isExistingUser,
+      token: code
+    }).then(function (res) {
+      btn.disabled = false;
+      if (res.error) {
+        showLoginError(res.error.message || '验证码错误或已过期');
+        return;
+      }
+      pendingOtp = null;
+      enterApp();
+    }).catch(function () {
+      btn.disabled = false;
+      showLoginError('网络异常，请稍后重试');
+    });
+  });
+
+  // 回车快捷提交
+  codeInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') $('loginBtn').click(); });
+
+  // 退出
+  $('logoutBtn').addEventListener('click', function () {
+    cloud.auth.signOut().then(function () {
+      pendingOtp = null;
+      todos = [];
+      loginView.classList.remove('hidden');
+      mainView.classList.add('hidden');
+      phoneInput.value = '';
+      codeInput.value = '';
+    });
+  });
+
+  function enterApp() {
+    loginView.classList.add('hidden');
+    mainView.classList.remove('hidden');
+    var d = new Date();
+    var week = ['日','一','二','三','四','五','六'];
+    $('todayDate').textContent = (d.getMonth()+1) + '月' + d.getDate() + '日 · 星期' + week[d.getDay()];
+    loadTodos();
+  }
+
+  function updateGreeting(session) {
+    var name = session && session.user && session.user.name;
+    $('greetName').textContent = name ? ('你好，' + name) : '你好';
+  }
+
+  // 加载任务
+  function loadTodos() {
+    $('loading').classList.remove('hidden');
+    $('empty').classList.add('hidden');
+    $('todoList').innerHTML = '';
+    cloud.database.from('todos').select('*').order('created_at', { ascending: true })
+      .then(function (res) {
+        $('loading').classList.add('hidden');
+        if (res.error) {
+          toast('加载失败，请重试', true);
+          return;
+        }
+        todos = res.data || [];
+        render();
+      }).catch(function () {
+        $('loading').classList.add('hidden');
+        toast('网络异常，请重试', true);
+      });
+  }
+
+  function render() {
+    var list = $('todoList');
+    list.innerHTML = '';
+    var remaining = todos.filter(function (t) { return !t.done; }).length;
+    $('remainingCount').textContent = remaining;
+    if (todos.length === 0) {
+      $('empty').classList.remove('hidden');
+      return;
+    }
+    $('empty').classList.add('hidden');
+    todos.forEach(function (t) {
+      list.appendChild(buildItem(t));
+    });
+  }
+
+  function buildItem(t) {
+    var div = document.createElement('div');
+    div.className = 'todo-item' + (t.done ? ' done' : '');
+    div.dataset.id = t.id;
+
+    var cb = document.createElement('div');
+    cb.className = 'checkbox';
+    cb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    cb.addEventListener('click', function () { toggleTodo(t); });
+
+    var txt = document.createElement('div');
+    txt.className = 'todo-text';
+    txt.textContent = t.title;
+
+    var del = document.createElement('button');
+    del.className = 'btn-del';
+    del.title = '删除';
+    del.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg>';
+    del.addEventListener('click', function () { deleteTodo(t); });
+
+    div.appendChild(cb);
+    div.appendChild(txt);
+    div.appendChild(del);
+    return div;
+  }
+
+  // 添加任务
+  function addTodo() {
+    var input = $('newTodo');
+    var title = input.value.trim();
+    if (!title) {
+      toast('任务内容不能为空', true);
+      return;
+    }
+    var btn = $('addBtn');
+    btn.disabled = true;
+    cloud.database.from('todos').insert({ title: title }).select()
+      .then(function (res) {
+        btn.disabled = false;
+        if (res.error) {
+          toast('添加失败，请重试', true);
+          return;
+        }
+        if (res.data && res.data[0]) {
+          todos.push(res.data[0]);
+          render();
+          input.value = '';
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        toast('网络异常，请重试', true);
+      });
+  }
+
+  $('addBtn').addEventListener('click', addTodo);
+  $('newTodo').addEventListener('keydown', function (e) { if (e.key === 'Enter') addTodo(); });
+
+  // 切换完成状态
+  function toggleTodo(t) {
+    var newDone = !t.done;
+    cloud.database.from('todos').update({ done: newDone }).eq('id', t.id).select()
+      .then(function (res) {
+        if (res.error) { toast('操作失败，请重试', true); return; }
+        if (Array.isArray(res.data) && res.data.length === 0) { toast('操作失败', true); return; }
+        t.done = newDone;
+        render();
+      }).catch(function () { toast('网络异常，请重试', true); });
+  }
+
+  // 删除任务
+  function deleteTodo(t) {
+    cloud.database.from('todos').delete().eq('id', t.id).select()
+      .then(function (res) {
+        if (res.error) { toast('删除失败，请重试', true); return; }
+        if (Array.isArray(res.data) && res.data.length === 0) { toast('删除失败', true); return; }
+        todos = todos.filter(function (x) { return x.id !== t.id; });
+        render();
+        toast('已删除');
+      }).catch(function () { toast('网络异常，请重试', true); });
+  }
+
+  // 启动：恢复会话
+  cloud.auth.getSession().then(function (res) {
+    if (res.error || !res.data) {
+      loginView.classList.remove('hidden');
+      mainView.classList.add('hidden');
+      return;
+    }
+    updateGreeting(res.data);
+    enterApp();
+  }).catch(function () {
+    loginView.classList.remove('hidden');
+    mainView.classList.add('hidden');
+  });
+})();
+</script>
+</body>
+</html>

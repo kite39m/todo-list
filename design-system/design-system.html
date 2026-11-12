@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#faf9f5" />
+<title>Warm Canvas · 暖色画布设计系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Warm Canvas · design tokens (alpha)
+   依据《Warm Canvas 设计系统》整理，不包含任何品牌标志
+   ============================================================ */
+:root {
+  /* colors */
+  --color-primary: #cc785c;
+  --color-primary-active: #a9583e;
+  --color-primary-disabled: #e6dfd8;
+  --color-ink: #141413;
+  --color-body: #3d3d3a;
+  --color-body-strong: #252523;
+  --color-muted: #6c6a64;
+  --color-muted-soft: #8e8b82;
+  --color-hairline: #e6dfd8;
+  --color-hairline-soft: #ebe6df;
+  --color-canvas: #faf9f5;
+  --color-surface-soft: #f5f0e8;
+  --color-surface-card: #efe9de;
+  --color-surface-cream-strong: #e8e0d2;
+  --color-surface-dark: #181715;
+  --color-surface-dark-elevated: #252320;
+  --color-surface-dark-soft: #1f1e1b;
+  --color-on-primary: #ffffff;
+  --color-on-dark: #faf9f5;
+  --color-on-dark-soft: #a09d96;
+  --color-accent-teal: #5db8a6;
+  --color-accent-amber: #e8a55a;
+  --color-success: #5db872;
+  --color-warning: #d4a017;
+  --color-error: #c64545;
+
+  /* font families（含中文回退） */
+  --font-display: "Copernicus", "Tiempos Headline", "Cormorant Garamond", Garamond, "Noto Serif SC", "Songti SC", "Times New Roman", serif;
+  --font-sans: "StyreneB", Inter, "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* 展示字重：换用 Cormorant Garamond 等替代字体时取 500 */
+  --display-weight: 500;
+
+  /* spacing（基础步长 4px） */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-section: 96px;
+
+  /* radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+  --radius-full: 9999px;
+
+  /* elevation —— 色块优先，阴影罕用 */
+  --shadow-lift: 0 1px 3px rgba(20,20,19,.08);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-primary); color: var(--color-on-primary); }
+
+/* --- type styles --- */
+.type-display-xl { font: var(--display-weight) 64px/1.05 var(--font-display); letter-spacing: -1.5px; color: var(--color-ink); }
+.type-display-lg { font: var(--display-weight) 48px/1.1 var(--font-display); letter-spacing: -1px; color: var(--color-ink); }
+.type-display-md { font: var(--display-weight) 36px/1.15 var(--font-display); letter-spacing: -.5px; color: var(--color-ink); }
+.type-display-sm { font: var(--display-weight) 28px/1.2 var(--font-display); letter-spacing: -.3px; color: var(--color-ink); }
+.type-title-lg { font: 500 22px/1.3 var(--font-sans); color: var(--color-ink); }
+.type-title-md { font: 500 18px/1.4 var(--font-sans); color: var(--color-ink); }
+.type-title-sm { font: 500 16px/1.4 var(--font-sans); color: var(--color-ink); }
+.type-body-md { font: 400 16px/1.55 var(--font-sans); color: var(--color-body); }
+.type-body-sm { font: 400 14px/1.55 var(--font-sans); color: var(--color-body); }
+.type-caption { font: 500 13px/1.4 var(--font-sans); }
+.type-caption-uppercase { font: 500 12px/1.4 var(--font-sans); letter-spacing: 1.5px; text-transform: uppercase; }
+.type-code { font: 400 14px/1.6 var(--font-mono); }
+.type-button { font: 500 14px/1 var(--font-sans); }
+.type-nav-link { font: 500 14px/1.4 var(--font-sans); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-xl); }
+.band { padding: var(--space-section) 0; }
+.band-canvas { background: var(--color-canvas); }
+.band-cream { background: var(--color-surface-soft); }
+.band-dark { background: var(--color-surface-dark); color: var(--color-on-dark); }
+.band-coral { background: var(--color-primary); color: var(--color-on-primary); }
+.band-dark .type-display-xl,
+.band-dark .type-display-lg,
+.band-dark .type-display-md,
+.band-dark .type-display-sm,
+.band-dark .type-title-lg,
+.band-dark .type-title-md,
+.band-dark .type-title-sm { color: var(--color-on-dark); }
+.band-dark .type-body-md, .band-dark .type-body-sm { color: var(--color-on-dark); }
+.band-coral .type-display-lg, .band-coral .type-display-sm { color: var(--color-on-primary); }
+
+.section-head { margin-bottom: var(--space-xl); max-width: 760px; }
+.section-kicker { color: var(--color-muted); letter-spacing: 1.5px; text-transform: uppercase; font-size: 12px; font-weight: 500; margin-bottom: var(--space-md); }
+.band-dark .section-kicker { color: var(--color-on-dark-soft); }
+.section-lead { margin-top: var(--space-md); color: var(--color-body); }
+.band-dark .section-lead { color: var(--color-on-dark-soft); }
+.band-coral .section-lead { color: var(--color-on-primary); opacity: .92; }
+.subhead { font: 500 18px/1.4 var(--font-sans); color: var(--color-ink); margin: var(--space-xxl) 0 var(--space-lg); }
+.band-dark .subhead { color: var(--color-on-dark); }
+.subhead:first-of-type { margin-top: 0; }
+.subhead .en { font-family: var(--font-mono); font-size: 12px; color: var(--color-muted); font-weight: 400; margin-left: 10px; letter-spacing: 0; }
+.band-dark .subhead .en { color: var(--color-on-dark-soft); }
+.grid { display: grid; gap: var(--space-lg); }
+.grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+.row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; }
+.muted { color: var(--color-muted); }
+.mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   COMPONENTS —— 按 DESIGN.md 键名渲染，只记录默认态与按下态
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 500 14px/1 var(--font-sans); padding: 12px 20px; height: 40px;
+  border: none; border-radius: var(--radius-md); cursor: pointer; text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.btn-primary:active, .btn-primary.is-active { background: var(--color-primary-active); }
+.btn-primary:disabled, .btn-primary.is-disabled { background: var(--color-primary-disabled); color: var(--color-muted); cursor: not-allowed; }
+.btn-secondary { background: var(--color-canvas); color: var(--color-ink); border: 1px solid var(--color-hairline); }
+.btn-secondary-on-dark { background: var(--color-surface-dark-elevated); color: var(--color-on-dark); }
+.btn-text-link { background: transparent; color: var(--color-ink); padding: 12px 8px; }
+.btn-icon-circular {
+  width: 36px; height: 36px; padding: 0; border-radius: var(--radius-full);
+  background: var(--color-canvas); color: var(--color-ink); border: 1px solid var(--color-hairline);
+}
+.btn-on-coral { background: var(--color-canvas); color: var(--color-ink); }
+.text-link { color: var(--color-primary); font-size: 16px; font-weight: 500; text-decoration: none; cursor: pointer; }
+.btn-code { font: 500 12px/1 var(--font-sans); letter-spacing: .5px; padding: 8px 12px; height: auto; border-radius: var(--radius-sm); background: var(--color-surface-dark-elevated); color: var(--color-on-dark); border: 1px solid rgba(250,249,245,.14); }
+
+.top-nav {
+  height: 64px; background: var(--color-canvas); display: flex; align-items: center;
+  justify-content: space-between; gap: var(--space-lg);
+  padding: 0 var(--space-xl); border-bottom: 1px solid var(--color-hairline-soft);
+  position: sticky; top: 0; z-index: 50;
+}
+.nav-brand { font-family: var(--font-display); font-size: 21px; font-weight: 500; letter-spacing: -.3px; color: var(--color-ink); text-decoration: none; white-space: nowrap; }
+.nav-links { display: flex; gap: var(--space-lg); align-items: center; }
+.nav-link { font: 500 14px/1.4 var(--font-sans); color: var(--color-ink); text-decoration: none; }
+.nav-right { display: flex; gap: var(--space-sm); align-items: center; }
+
+.text-input {
+  background: var(--color-canvas); color: var(--color-ink);
+  font: 400 16px/1.55 var(--font-sans);
+  padding: 10px 14px; height: 40px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-hairline); outline: none;
+}
+.text-input::placeholder { color: var(--color-muted-soft); }
+.text-input.is-focused { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(204,120,92,.18); }
+.badge-pill { background: var(--color-surface-card); color: var(--color-ink); font: 500 13px/1.4 var(--font-sans); border-radius: var(--radius-pill); padding: 4px 12px; display: inline-block; }
+.badge-coral { background: var(--color-primary); color: var(--color-on-primary); font: 500 12px/1.4 var(--font-sans); letter-spacing: 1.5px; text-transform: uppercase; border-radius: var(--radius-pill); padding: 4px 12px; display: inline-block; }
+.category-tab { background: transparent; color: var(--color-muted); font: 500 14px/1.4 var(--font-sans); padding: 8px 14px; border-radius: var(--radius-md); border: none; cursor: pointer; }
+.category-tab.is-active { background: var(--color-surface-card); color: var(--color-ink); }
+
+.feature-card { background: var(--color-surface-card); border-radius: var(--radius-lg); padding: var(--space-xl); }
+.product-mockup-card-dark { background: var(--color-surface-dark); color: var(--color-on-dark); border-radius: var(--radius-lg); padding: var(--space-xl); }
+.code-window-card { background: var(--color-surface-dark); color: var(--color-on-dark); border-radius: var(--radius-lg); padding: var(--space-lg); }
+.model-comparison-card { background: var(--color-canvas); border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); padding: var(--space-xl); }
+.pricing-tier-card { background: var(--color-canvas); border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); padding: var(--space-xl); }
+.pricing-tier-card-featured { background: var(--color-surface-dark); color: var(--color-on-dark); border-radius: var(--radius-lg); padding: var(--space-xl); }
+.callout-card-coral { background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--radius-lg); padding: var(--space-xxl); }
+.cookie-consent-card { background: var(--color-surface-dark); color: var(--color-on-dark); border-radius: var(--radius-lg); padding: var(--space-lg); font-size: 14px; }
+.connector-tile { background: var(--color-canvas); border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); padding: 20px; }
+.cta-band-dark { background: var(--color-surface-dark); color: var(--color-on-dark); border-radius: var(--radius-lg); padding: 64px; }
+.cta-band-coral { background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--radius-lg); padding: 64px; }
+.hero-band { background: var(--color-canvas); color: var(--color-ink); padding: var(--space-section) 0; }
+.hero-illustration-card { background: var(--color-canvas); color: var(--color-ink); border-radius: var(--radius-xl); }
+
+.code-block { background: var(--color-surface-dark-soft); border-radius: var(--radius-md); padding: var(--space-md); overflow-x: auto; font: 400 14px/1.6 var(--font-mono); }
+.code-line { display: flex; gap: var(--space-md); white-space: pre; }
+.code-line .ln { color: var(--color-muted-soft); user-select: none; min-width: 20px; text-align: right; }
+.code-kw { color: #c39b7a; } .code-fn { color: #5db8a6; } .code-str { color: #e8a55a; } .code-var { color: #d9d5cc; }
+
+/* 组件展示壳 */
+.comp { border-top: 1px solid var(--color-hairline-soft); padding: var(--space-lg) 0; }
+.band-dark .comp { border-top-color: rgba(250,249,245,.12); }
+.comp-name { font: 500 13px/1.4 var(--font-mono); color: var(--color-ink); margin-bottom: var(--space-sm); }
+.band-dark .comp-name { color: var(--color-on-dark); }
+.comp-meta { font-size: 12px; color: var(--color-muted); margin-top: var(--space-sm); line-height: 1.6; }
+.band-dark .comp-meta { color: var(--color-on-dark-soft); }
+.comp-stage { padding: var(--space-xl); border-radius: var(--radius-lg); background: var(--color-canvas); border: 1px solid var(--color-hairline-soft); }
+.comp-stage.on-cream { background: var(--color-surface-soft); }
+.comp-stage.on-dark { background: var(--color-surface-dark-elevated); border-color: rgba(250,249,245,.1); }
+
+/* Swatches */
+.swatch {
+  border-radius: var(--radius-md); padding: var(--space-md); min-height: 96px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+  cursor: pointer; border: 1px solid transparent; text-align: left;
+  font-family: var(--font-sans); transition: transform .12s ease;
+}
+.swatch:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.swatch .nm { font-size: 13px; font-weight: 500; }
+.swatch .hx { font-family: var(--font-mono); font-size: 12px; opacity: .78; }
+.swatch.light { color: var(--color-ink); border-color: var(--color-hairline); }
+.swatch.dark { color: var(--color-on-primary); }
+
+/* table */
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font-weight: 500; color: var(--color-on-dark-soft); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 12px 14px; border-bottom: 1px solid rgba(250,249,245,.16); }
+.tbl td { padding: 12px 14px; border-bottom: 1px solid rgba(250,249,245,.09); color: var(--color-on-dark); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl .grade { font-family: var(--font-mono); font-size: 12px; color: var(--color-on-dark-soft); }
+.model-comparison-card .tbl th { color: var(--color-muted); border-bottom-color: var(--color-hairline); }
+.model-comparison-card .tbl td { color: var(--color-body); border-bottom-color: var(--color-hairline-soft); }
+.grid.footer-grid { grid-template-columns: 1fr 2fr; }
+
+/* rhythm strip */
+.rhythm { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-sm); }
+.rhythm .step { border-radius: var(--radius-md); padding: var(--space-md); min-height: 92px; display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; line-height: 1.4; }
+.rhythm .step b { font-size: 13px; font-weight: 500; display: block; }
+.rhythm .step span { opacity: .8; font-family: var(--font-mono); font-size: 11px; }
+
+/* type specimen */
+.specimen { display: grid; grid-template-columns: 190px 1fr; gap: var(--space-xl); align-items: baseline; padding: var(--space-lg) 0; border-bottom: 1px solid var(--color-hairline-soft); }
+.specimen .lbl { font-family: var(--font-mono); font-size: 12px; color: var(--color-muted); line-height: 1.7; }
+.specimen .lbl b { display: block; color: var(--color-ink); font-size: 13px; font-weight: 500; }
+
+/* spacing bars */
+.sp-bar { display: flex; align-items: center; gap: var(--space-md); padding: 9px 0; border-bottom: 1px solid var(--color-hairline-soft); font-size: 13px; }
+.sp-bar .k { width: 92px; font-family: var(--font-mono); color: var(--color-ink); flex-shrink: 0; }
+.sp-bar .v { width: 44px; font-family: var(--font-mono); color: var(--color-muted); flex-shrink: 0; }
+.sp-bar .fill { height: 12px; background: var(--color-surface-cream-strong); border-radius: var(--radius-xs); }
+.sp-bar .d { flex: 1; color: var(--color-muted); font-size: 12px; }
+.radius-chip { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); padding: var(--space-lg) var(--space-md); text-align: center; background: var(--color-canvas); }
+.radius-chip .box { width: 56px; height: 56px; margin: 0 auto var(--space-md); background: var(--color-surface-card); border: 1px solid var(--color-hairline); }
+.radius-chip .k { font-family: var(--font-mono); font-size: 12px; color: var(--color-ink); }
+.radius-chip .v { font-family: var(--font-mono); font-size: 11px; color: var(--color-muted); }
+
+/* notes / rules */
+.note { border-left: 3px solid var(--color-primary); padding: var(--space-md) var(--space-lg); background: var(--color-surface-card); border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 14px; color: var(--color-body); }
+.band-dark .note { background: var(--color-surface-dark-elevated); color: var(--color-on-dark); }
+.rule-list { list-style: none; display: grid; gap: var(--space-md); }
+.rule-list li { display: flex; gap: var(--space-md); font-size: 14px; line-height: 1.6; }
+.rule-list li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--color-primary); flex-shrink: 0; margin-top: 9px; }
+.rule-list.no li::before { background: var(--color-muted-soft); }
+.rule-list b { color: var(--color-ink); font-weight: 500; }
+
+/* code pane with header */
+.code-pane { background: var(--color-surface-dark-soft); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(250,249,245,.1); }
+.code-pane .bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid rgba(250,249,245,.1); }
+.code-pane .bar .nm { font: 400 12px/1 var(--font-mono); color: var(--color-on-dark-soft); }
+.code-pane pre { margin: 0; padding: var(--space-lg); overflow-x: auto; font: 400 12.5px/1.75 var(--font-mono); color: #d9d5cc; white-space: pre; }
+.code-pane .c-key { color: #c39b7a; } .code-pane .c-str { color: #e8a55a; } .code-pane .c-num { color: #5db8a6; }
+
+/* toast */
+.toast {
+  position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%) translateY(16px);
+  background: var(--color-surface-dark); color: var(--color-on-dark);
+  padding: 10px 20px; border-radius: var(--radius-pill); font-size: 13px;
+  opacity: 0; pointer-events: none; transition: all .22s ease; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 1024px) {
+  .grid.cols-4, .grid.cols-6 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+  .rhythm { grid-template-columns: repeat(3, 1fr); }
+  .band { padding: 64px 0; }
+}
+@media (max-width: 768px) {
+  .wrap { padding: 0 20px; }
+  .grid.cols-2, .grid.cols-3, .grid.cols-4, .grid.cols-6, .grid.footer-grid { grid-template-columns: 1fr; }
+  .rhythm { grid-template-columns: repeat(2, 1fr); }
+  .type-display-xl { font-size: 32px; letter-spacing: -.5px; }
+  .type-display-lg { font-size: 32px; }
+  .type-display-md { font-size: 28px; }
+  .type-display-sm { font-size: 24px; }
+  .band { padding: 56px 0; }
+  .nav-links { display: none; }
+  .specimen { grid-template-columns: 1fr; gap: 8px; }
+  .cta-band-coral, .cta-band-dark, .callout-card-coral { padding: var(--space-xl); }
+  .tbl { font-size: 12px; }
+  .tbl th, .tbl td { padding: 10px 8px; }
+}
+</style>
+</head>
+<body id="top">
+
+<!-- ========== top-nav ========== -->
+<nav class="top-nav">
+  <a class="nav-brand" href="#top">Warm Canvas</a>
+  <div class="nav-links">
+    <a class="nav-link" href="#overview">概览</a>
+    <a class="nav-link" href="#colors">色彩</a>
+    <a class="nav-link" href="#type">字体</a>
+    <a class="nav-link" href="#space">间距与圆角</a>
+    <a class="nav-link" href="#components">组件</a>
+    <a class="nav-link" href="#layout">布局</a>
+    <a class="nav-link" href="#rules">规则</a>
+  </div>
+  <div class="nav-right">
+    <a class="btn btn-primary" href="#tokens">获取令牌</a>
+  </div>
+</nav>
+
+<!-- ========== 1 · 奶油画布 canvas：首屏 ========== -->
+<section class="band band-canvas hero-band" id="overview">
+  <div class="wrap">
+    <div class="grid cols-2" style="gap:var(--space-xxl);align-items:center;">
+      <div>
+        <span class="badge-coral">Alpha</span>
+        <h1 class="type-display-xl" style="margin-top:var(--space-lg);">Warm Canvas</h1>
+        <p class="type-display-sm" style="margin-top:var(--space-md);">读起来像一本杂志，<br/>而不是一页 SaaS 营销稿。</p>
+        <p class="type-body-md section-lead" style="max-width:460px;">暖色画布设计系统。奶油色画布、衬线展示字体与珊瑚色按钮，配上深色的产品表面。三种表面、一种强调色。</p>
+        <p class="type-body-sm muted" style="margin-top:var(--space-lg);font-family:var(--font-mono);font-size:12px;">25 个颜色 · 14 级字体 · 7 档圆角 · 8 档间距 · 29 个组件</p>
+        <div class="row" style="margin-top:var(--space-xl);">
+          <a class="btn btn-primary" href="#components">浏览组件</a>
+          <button class="btn btn-secondary" data-copy=":root { --color-canvas: #faf9f5; --color-ink: #141413; --color-primary: #cc785c; --font-display: 'Cormorant Garamond', serif; --radius-md: 8px; }">复制 tokens.css</button>
+        </div>
+      </div>
+      <!-- hero-illustration-card · 深色代码窗口 -->
+      <div class="hero-illustration-card">
+        <div class="code-window-card" style="border-radius:var(--radius-xl);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);">
+            <span style="font:400 12px/1 var(--font-mono);color:var(--color-on-dark-soft);">tokens.css</span>
+            <span style="font:400 11px/1 var(--font-mono);color:var(--color-on-dark-soft);letter-spacing:1px;">CSS · UTF-8</span>
+          </div>
+          <div class="code-block">
+            <div class="code-line"><span class="ln">1</span><span><span class="code-kw">:root</span> {</span></div>
+            <div class="code-line"><span class="ln">2</span><span>  <span class="code-var">--color-canvas</span>: <span class="code-str">#faf9f5</span>;</span></div>
+            <div class="code-line"><span class="ln">3</span><span>  <span class="code-var">--color-ink</span>: <span class="code-str">#141413</span>;</span></div>
+            <div class="code-line"><span class="ln">4</span><span>  <span class="code-var">--color-primary</span>: <span class="code-str">#cc785c</span>;</span></div>
+            <div class="code-line"><span class="ln">5</span><span>  <span class="code-var">--color-surface-dark</span>: <span class="code-str">#181715</span>;</span></div>
+            <div class="code-line"><span class="ln">6</span><span>  <span class="code-var">--font-display</span>: <span class="code-str">"Cormorant Garamond"</span>, serif;</span></div>
+            <div class="code-line"><span class="ln">7</span><span>  <span class="code-var">--radius-md</span>: <span class="code-str">8px</span>;</span></div>
+            <div class="code-line"><span class="ln">8</span><span>}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 2 · 奶油卡片：设计理念 + 页面节奏 ========== -->
+<section class="band band-cream" id="principles">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Principles · 设计理念</p>
+      <h2 class="type-display-lg">三种表面，一种强调色</h2>
+      <p class="type-body-md section-lead">奶油、珊瑚与深色构成基调，不再引入第四种表面色。层次来自色块对比，而不是阴影。</p>
+    </div>
+    <div class="grid cols-3">
+      <div class="feature-card"><div class="type-title-md" style="margin-bottom:8px;">暖色画布</div><p class="type-body-sm">页面底色是带暖调的奶油色 #faf9f5，文字是暖调深色 #141413。不用纯白，也不用冷灰。奶油色本身就是品牌。</p></div>
+      <div class="feature-card"><div class="type-title-md" style="margin-bottom:8px;">衬线标题，人文无衬线正文</div><p class="type-body-sm">展示标题用衬线体，字重 400，配负字距。正文用有人文感的无衬线体。不要用无衬线体做展示标题。</p></div>
+      <div class="feature-card"><div class="type-title-md" style="margin-bottom:8px;">珊瑚色保持稀缺</div><p class="type-body-sm">珊瑚色 #cc785c 只给主按钮和整幅珊瑚卡片。单个元素上少用，整幅卡片上可以大面积使用。</p></div>
+      <div class="feature-card"><div class="type-title-md" style="margin-bottom:8px;">展示真实的产品界面</div><p class="type-body-sm">深色卡片承载代码块、终端输出和对比表，直接呈现产品界面，不画抽象的示意插图。</p></div>
+      <div class="feature-card"><div class="type-title-md" style="margin-bottom:8px;">色块优先，阴影罕用</div><p class="type-body-sm">层次来自奶油色与深色表面的对比。阴影只用于悬浮抬升：0 1px 3px rgba(20,20,19,0.08)。</p></div>
+      <div class="feature-card"><div class="type-title-md" style="margin-bottom:8px;">圆角分层</div><p class="type-body-sm">按钮与输入框 8px，内容卡片 12px，首屏大容器 16px，徽章用胶囊形。越大的容器圆角越大。</p></div>
+    </div>
+
+    <h3 class="subhead" style="margin-top:var(--space-xxl);">页面节奏 <span class="en">Rhythm</span></h3>
+    <p class="type-body-sm muted" style="margin-bottom:var(--space-lg);">页面在三种表面之间交替，相邻两段不重复同一种表面。</p>
+    <div class="rhythm">
+      <div class="step" style="background:var(--color-canvas);color:var(--color-ink);border:1px solid var(--color-hairline);"><b>奶油画布</b><span>canvas</span></div>
+      <div class="step" style="background:var(--color-surface-card);color:var(--color-ink);"><b>奶油卡片</b><span>surface-card</span></div>
+      <div class="step" style="background:var(--color-surface-dark);color:var(--color-on-dark);"><b>深色产品面</b><span>surface-dark</span></div>
+      <div class="step" style="background:var(--color-canvas);color:var(--color-ink);border:1px solid var(--color-hairline);"><b>奶油画布</b><span>canvas</span></div>
+      <div class="step" style="background:var(--color-primary);color:var(--color-on-primary);"><b>珊瑚 callout</b><span>primary</span></div>
+      <div class="step" style="background:var(--color-surface-dark);color:var(--color-on-dark);"><b>深色页脚</b><span>surface-dark</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 3 · 奶油画布：色彩 ========== -->
+<section class="band band-canvas" id="colors">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Colors · 色彩</p>
+      <h2 class="type-display-lg">25 个颜色，四组</h2>
+      <p class="type-body-md section-lead">颜色分四组：品牌与强调、表面、文字、语义。点击任意色块即可复制十六进制值。</p>
+    </div>
+
+    <h3 class="subhead">品牌与强调 <span class="en">Brand &amp; accent</span></h3>
+    <div class="grid cols-4" id="sw-brand"></div>
+
+    <h3 class="subhead">表面 <span class="en">Surface</span></h3>
+    <div class="grid cols-4" id="sw-surface"></div>
+
+    <h3 class="subhead">文字 <span class="en">Text</span></h3>
+    <div class="grid cols-4" id="sw-text"></div>
+
+    <h3 class="subhead">语义 <span class="en">Semantic</span></h3>
+    <div class="grid cols-4" id="sw-semantic"></div>
+  </div>
+</section>
+
+<!-- ========== 4 · 深色产品面：对比度 + 真实界面 ========== -->
+<section class="band band-dark" id="contrast">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">WCAG 2.x · 对比度检查</p>
+      <h2 class="type-display-lg">哪些组合需要留意</h2>
+      <p class="type-body-md section-lead">用设计令牌的数值按 WCAG 公式算出。这一节是本页补充，不是原文内容。</p>
+    </div>
+    <div class="code-window-card" style="padding:var(--space-lg);">
+      <table class="tbl">
+        <thead><tr><th>用途</th><th>前景 / 背景</th><th>预览</th><th>对比度</th><th>等级</th></tr></thead>
+        <tbody id="contrastBody"></tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:var(--space-lg);border-left-color:var(--color-accent-amber);">
+      <b>需要留意：</b>白字在珊瑚色上是 3.28:1，珊瑚色链接在画布上是 3.11:1，说明文字 muted-soft 在画布上是 3.23:1。三者都达不到正文要求的 4.5:1，只满足大字的 3:1。14px 的按钮文字、行内链接和徽章在小字号时，建议加粗、放大，或改用 ink 文字；整幅珊瑚卡片上的 28px 标题属于大字，可以通过。
+    </div>
+
+    <h3 class="subhead" style="margin-top:var(--space-xxl);">深色表面承载真实产品界面 <span class="en">Surfaces in use</span></h3>
+    <div class="grid cols-2">
+      <div class="code-pane">
+        <div class="bar"><span class="nm">button.css</span><span class="nm">CSS · UTF-8</span></div>
+        <pre><span class="c-key">.btn-primary</span> {
+  background: <span class="c-key">var</span>(--color-primary);
+  color: <span class="c-key">var</span>(--color-on-primary);
+  border-radius: <span class="c-key">var</span>(--radius-md);
+  padding: <span class="c-num">12px</span> <span class="c-num">20px</span>;
+}</pre>
+      </div>
+      <div class="product-mockup-card-dark" style="background:var(--color-surface-dark-soft);">
+        <div class="type-title-md" style="margin-bottom:var(--space-md);color:var(--color-on-dark);">设置面板</div>
+        <div style="display:grid;gap:10px;font-size:14px;color:var(--color-on-dark-soft);">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(250,249,245,.1);padding-bottom:8px;"><span>主题</span><span style="color:var(--color-on-dark);">奶油</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(250,249,245,.1);padding-bottom:8px;"><span>展示字体</span><span style="color:var(--color-on-dark);">衬线</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>连接状态</span><span style="color:var(--color-accent-teal);">已连接</span></div>
+        </div>
+        <div class="row" style="margin-top:var(--space-lg);"><button class="btn btn-secondary-on-dark">保存设置</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 5 · 奶油画布：字体 ========== -->
+<section class="band band-cream" id="type">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Typography · 字体</p>
+      <h2 class="type-display-lg">衬线展示，无衬线正文</h2>
+      <p class="type-body-md section-lead">展示标题用衬线体，正文、导航与按钮用人文无衬线体，代码用等宽体。这个分工不能打破。中文标题与正文回退到 Noto Serif SC 与 Noto Sans SC。</p>
+    </div>
+    <div class="grid cols-3">
+      <div class="feature-card"><div class="type-display-md" style="margin-bottom:12px;">Aa</div><div class="type-title-md">Copernicus</div><p class="type-body-sm" style="margin-top:8px;">替代：Tiempos Headline。本页用 Cormorant Garamond，字重 500，字距 −0.02em。</p><p class="mono" style="font-size:11px;color:var(--color-muted);margin-top:12px;">Copernicus, Tiempos Headline, Garamond, serif</p></div>
+      <div class="feature-card"><div style="font:500 40px/1 var(--font-sans);color:var(--color-ink);margin-bottom:12px;">Aa</div><div class="type-title-md">StyreneB</div><p class="type-body-sm" style="margin-top:8px;">替代：Inter 或 Söhne。不要用 Helvetica 或 Arial，它们太中性，会破坏温暖的编辑感。</p><p class="mono" style="font-size:11px;color:var(--color-muted);margin-top:12px;">StyreneB, Inter, system sans-serif</p></div>
+      <div class="feature-card"><div style="font:400 36px/1 var(--font-mono);color:var(--color-ink);margin-bottom:12px;">Aa</div><div class="type-title-md">JetBrains Mono</div><p class="type-body-sm" style="margin-top:8px;">用于所有代码块与终端文字，14px，行高 1.6。</p><p class="mono" style="font-size:11px;color:var(--color-muted);margin-top:12px;">JetBrains Mono, ui-monospace, monospace</p></div>
+    </div>
+
+    <h3 class="subhead" style="margin-top:var(--space-xxl);">字阶 <span class="en">Hierarchy · 14 级</span></h3>
+    <div id="typeScale"></div>
+
+    <h3 class="subhead" style="margin-top:var(--space-xxl);">使用原则 <span class="en">Principles</span></h3>
+    <div class="grid cols-2" style="gap:var(--space-lg);">
+      <div class="feature-card"><div class="type-title-sm">展示字不加粗</div><p class="type-body-sm" style="margin-top:6px;">展示字号一律用字重 400，不用粗体。需要强调时，先加大字号，而不是加粗。</p></div>
+      <div class="feature-card"><div class="type-title-sm">负字距不能省</div><p class="type-body-sm" style="margin-top:6px;">展示字号的字距在 −0.3px 到 −1.5px 之间。没有负字距的衬线体读起来不像这套系统。</p></div>
+      <div class="feature-card"><div class="type-title-sm">正文用 400，标签用 500</div><p class="type-body-sm" style="margin-top:6px;">段落字重 400，标签与需要强调的短语字重 500。无衬线体要有人文感，不要用几何体。</p></div>
+      <div class="feature-card"><div class="type-title-sm">字体授权</div><p class="type-body-sm" style="margin-top:6px;">Copernicus 与 StyreneB 是授权字体，没有公开的网页版本。上线前确认授权，否则使用上面的替代字体。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 6 · 奶油画布：间距与圆角 ========== -->
+<section class="band band-canvas" id="space">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Spacing · Radius · Elevation</p>
+      <h2 class="type-display-lg">4px 步长，圆角分层</h2>
+      <p class="type-body-md section-lead">基础步长是 4px。越大的容器圆角越大。层次靠色块，不靠阴影。</p>
+    </div>
+    <div class="grid cols-2" style="gap:var(--space-xxl);align-items:start;">
+      <div>
+        <h3 class="subhead" style="margin-top:0;">间距 <span class="en">Spacing · 8 档</span></h3>
+        <div id="spacingList"></div>
+      </div>
+      <div>
+        <h3 class="subhead" style="margin-top:0;">圆角 <span class="en">Radius · 7 档</span></h3>
+        <div class="grid cols-4" id="radiusList" style="gap:var(--space-md);"></div>
+        <h3 class="subhead" style="margin-top:var(--space-xxl);">层级与阴影 <span class="en">Elevation</span></h3>
+        <div class="feature-card">
+          <ul class="rule-list" style="gap:12px;">
+            <li><span><b>平面</b> · 无阴影、无边框 —— 正文分段、顶部导航、首屏带。</span></li>
+            <li><span><b>细线</b> · 1px hairline 边框 —— 输入框、子导航，偶尔用在卡片上。</span></li>
+            <li><span><b>奶油卡</b> · surface-card 背景，无阴影 —— 特性卡、内容卡。</span></li>
+            <li><span><b>深色卡</b> · surface-dark 背景，无阴影 —— 代码窗口、模型展示卡。</span></li>
+            <li><span><b>轻阴影</b> · 0 1px 3px rgba(20,20,19,0.08) —— 悬浮抬升状态，很少使用。</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 7 · 奶油卡片：组件 ========== -->
+<section class="band band-cream" id="components">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Components · 组件</p>
+      <h2 class="type-display-lg">29 个组件</h2>
+      <p class="type-body-md section-lead">每个组件都按规范里的键名渲染，下方小字是它的令牌组合。只记录默认态与按下态，不定义悬停。</p>
+    </div>
+
+    <h3 class="subhead">导航、按钮与链接 <span class="en">Navigation · Buttons</span></h3>
+    <div class="comp-stage">
+      <div class="comp"><div class="comp-name">button-primary / -active / -disabled</div><div class="row"><button class="btn btn-primary">主按钮</button><button class="btn btn-primary is-active">按下态</button><button class="btn btn-primary is-disabled" disabled>禁用态</button></div><div class="comp-meta">background primary / primary-active / primary-disabled · 文字 on-primary / muted · 字体 button · 圆角 md（8px） · 内边距 12px 20px · 高度 40px</div></div>
+      <div class="comp"><div class="comp-name">button-secondary / button-text-link / button-icon-circular / text-link</div><div class="row"><button class="btn btn-secondary">次要按钮</button><button class="btn btn-text-link">文字按钮 →</button><button class="btn btn-icon-circular">→</button><a class="text-link">行内文字链接</a></div><div class="comp-meta">次要按钮：背景 canvas · 文字 ink · 圆角 md · 12px 20px。圆形图标按钮：36 × 36px · 圆角 full。text-link：透明 / primary / body-md。</div></div>
+      <div class="comp"><div class="comp-name">top-nav</div><div style="border:1px solid var(--color-hairline-soft);border-radius:var(--radius-md);overflow:hidden;"><div class="top-nav" style="position:static;border-bottom:none;"><span class="nav-brand">Warm Canvas</span><div class="nav-links"><a class="nav-link">产品</a><a class="nav-link">方案</a><a class="nav-link">定价</a><a class="nav-link">研究</a></div></div></div><div class="comp-meta">背景 canvas · 文字 ink · 字体 nav-link · 高度 64px</div></div>
+      <div class="comp"><div class="comp-name">category-tab / category-tab-active</div><div class="row" id="tabs"><button class="category-tab is-active" data-tab>全部</button><button class="category-tab" data-tab>色彩</button><button class="category-tab" data-tab>组件</button><button class="category-tab" data-tab>布局</button></div><div class="comp-meta">默认：背景透明 · 文字 muted · 圆角 md · 内边距 8px 14px。选中：背景 surface-card · 文字 ink。点击标签可切换。</div></div>
+      <div class="comp" style="border-bottom:none;"><div class="comp-name">button-secondary-on-dark</div><div class="comp-stage on-dark" style="padding:var(--space-md);border:none;"><button class="btn btn-secondary-on-dark">深色面上的次要按钮</button></div><div class="comp-meta">背景 surface-dark-elevated · 文字 on-dark · 圆角 md · 12px 20px</div></div>
+    </div>
+
+    <h3 class="subhead">表单与标签 <span class="en">Inputs · Badges</span></h3>
+    <div class="comp-stage">
+      <div class="comp"><div class="comp-name">text-input / text-input-focused / badge-pill / badge-coral</div><div class="row"><input class="text-input" type="text" placeholder="项目名称" /><input class="text-input is-focused" type="text" value="聚焦态" /><span class="badge-pill">分类标签</span><span class="badge-pill">设计系统</span><span class="badge-pill">v alpha</span><span class="badge-coral">New</span><span class="badge-coral">Beta</span></div><div class="comp-meta">输入框：背景 canvas · 文字 ink · 字体 body-md · 圆角 md · 10px 14px · 高度 40px；聚焦态加珊瑚边框与 3px 外环。badge-pill：surface-card / ink / caption / pill / 4px 12px。badge-coral：primary / on-primary / caption-uppercase / pill。</div></div>
+    </div>
+
+    <h3 class="subhead">卡片 <span class="en">Cards</span></h3>
+    <div class="grid cols-3">
+      <div class="feature-card"><div class="comp-name">feature-card</div><div class="type-title-md" style="margin-bottom:8px;">把重点放进卡片</div><p class="type-body-sm">特性卡承载以内容为主的说明。比画布深一档，不用阴影。</p><p class="comp-meta">背景 surface-card · 文字 ink · 字体 title-md · 圆角 lg（12px） · 内边距 32px</p></div>
+      <div class="model-comparison-card"><div class="comp-name">model-comparison-card</div><div class="type-title-md" style="margin-bottom:8px;">Compact</div><p class="type-body-sm">响应快，适合日常的轻量任务。</p><a class="text-link" style="font-size:14px;display:inline-block;margin-top:12px;">了解更多 →</a><p class="comp-meta">背景 canvas · 文字 ink · 圆角 lg · 内边距 32px</p></div>
+      <div class="pricing-tier-card-featured"><div class="comp-name" style="color:var(--color-on-dark-soft);">pricing-tier-card-featured</div><div class="type-title-lg" style="color:var(--color-on-dark);">Team</div><div class="type-display-sm" style="color:var(--color-on-dark);margin:8px 0;">$24 <span style="font:400 14px/1 var(--font-sans);">/ 月</span></div><ul class="type-body-sm" style="color:var(--color-on-dark-soft);padding-left:18px;"><li>全部令牌与组件</li><li>优先支持</li><li>不限项目</li></ul><p class="comp-meta" style="color:var(--color-on-dark-soft);">背景 surface-dark · 文字 on-dark · 字体 title-lg · 圆角 lg</p></div>
+    </div>
+    <div class="grid cols-3" style="margin-top:var(--space-lg);">
+      <div class="pricing-tier-card"><div class="comp-name">pricing-tier-card</div><div class="type-title-lg">Starter</div><div class="type-display-sm" style="margin:8px 0;">$0 <span style="font:400 14px/1 var(--font-sans);">/ 月</span></div><ul class="type-body-sm muted" style="padding-left:18px;"><li>基础令牌与组件</li><li>社区支持</li><li>单个项目</li></ul><p class="comp-meta">背景 canvas · 文字 ink · 字体 title-lg · 圆角 lg · 32px</p></div>
+      <div class="connector-tile"><div class="comp-name">connector-tile</div><div style="width:36px;height:36px;border-radius:var(--radius-full);background:var(--color-surface-card);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--color-ink);margin-bottom:12px;">日</div><div class="type-title-sm">日历</div><p class="type-body-sm muted" style="font-size:13px;margin-top:4px;">同步日程与提醒。</p><p class="comp-meta">背景 canvas · 文字 ink · 字体 title-sm · 圆角 lg · 20px</p></div>
+      <div class="cookie-consent-card"><div class="comp-name" style="color:var(--color-on-dark-soft);">cookie-consent-card</div><p>我们使用 Cookie 改进体验。你可以随时在设置里更改。</p><div class="row" style="margin-top:var(--space-md);"><button class="btn btn-secondary-on-dark" style="height:32px;padding:8px 14px;">接受</button><button class="btn btn-text-link" style="color:var(--color-on-dark);height:32px;padding:8px 10px;">设置</button></div><p class="comp-meta" style="color:var(--color-on-dark-soft);">背景 surface-dark · 文字 on-dark · 字体 body-sm · 圆角 lg · 24px</p></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:var(--space-lg);">
+      <div class="callout-card-coral"><div class="comp-name" style="color:var(--color-on-primary);">callout-card-coral</div><div class="type-display-sm" style="color:var(--color-on-primary);">珊瑚面就是电压</div><p class="type-body-sm" style="color:var(--color-on-primary);margin-top:10px;">整幅珊瑚卡片承载一个主要的行动号召。里面的按钮反过来用奶油色。</p><button class="btn btn-on-coral" style="margin-top:var(--space-lg);">开始使用</button><p class="comp-meta" style="color:var(--color-on-primary);opacity:.85;">背景 primary · 文字 on-primary · 字体 title-md · 圆角 lg · 内边距 48px</p></div>
+      <div class="code-window-card"><div class="comp-name" style="color:var(--color-on-dark-soft);">code-window-card</div><div style="font:400 12px/1 var(--font-mono);color:var(--color-on-dark-soft);margin-bottom:var(--space-md);">button.css</div><div class="code-block"><div class="code-line"><span class="ln">1</span><span><span class="code-kw">.btn-primary</span> {</span></div><div class="code-line"><span class="ln">2</span><span>  background: <span class="code-kw">var</span>(--color-primary);</span></div><div class="code-line"><span class="ln">3</span><span>  color: <span class="code-kw">var</span>(--color-on-primary);</span></div><div class="code-line"><span class="ln">4</span><span>  border-radius: <span class="code-kw">var</span>(--radius-md);</span></div><div class="code-line"><span class="ln">5</span><span>  padding: <span class="code-str">12px 20px</span>;</span></div><div class="code-line"><span class="ln">6</span><span>}</span></div></div><p class="comp-meta" style="color:var(--color-on-dark-soft);">背景 surface-dark · 文字 on-dark · 字体 code · 圆角 lg · 内边距 24px</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 8 · 深色产品面：号召带 + 令牌 ========== -->
+<section class="band band-dark" id="tokens">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Bands · 号召带与页脚</p>
+      <h2 class="type-display-lg">深色面收尾</h2>
+    </div>
+    <div class="grid cols-2" style="margin-bottom:var(--space-xxl);">
+      <div class="cta-band-dark" style="background:var(--color-surface-dark-soft);"><div class="comp-name" style="color:var(--color-on-dark-soft);">cta-band-dark</div><div class="type-display-sm" style="color:var(--color-on-dark);margin-top:12px;">从代码开始</div><p class="type-body-sm" style="color:var(--color-on-dark-soft);margin-top:10px;">深色号召带常与代码窗口卡搭配，用在面向开发者的页面。圆角 lg，内边距 64px。</p></div>
+      <div class="product-mockup-card-dark" style="background:var(--color-surface-dark-soft);"><div class="comp-name" style="color:var(--color-on-dark-soft);">product-mockup-card-dark</div><div class="type-title-md" style="color:var(--color-on-dark);margin-top:12px;">设置面板</div><p class="type-body-sm" style="color:var(--color-on-dark-soft);margin-top:8px;">深色卡片承载真实的产品界面片段，不画抽象示意插图。深色界面自带的行号、状态栏已经足够，不需要再加外部阴影。</p></div>
+    </div>
+
+    <div class="section-head" style="margin-bottom:var(--space-lg);">
+      <p class="section-kicker">Tokens · 令牌</p>
+      <h2 class="type-display-md">把令牌带进你的项目</h2>
+      <p class="type-body-md section-lead">CSS 变量可以直接放进项目，JSON 适合接入设计令牌工具链。类名 .type-* 提供完整的字体样式；组件的定义留在设计规范里，本页是它们的渲染。</p>
+    </div>
+
+    <div class="grid cols-2" style="gap:var(--space-lg);">
+      <div class="code-pane">
+        <div class="bar"><span class="nm">tokens.css</span><button class="btn btn-code" data-copy-target="cssCode">复制</button></div>
+        <pre id="cssCode">/* Warm Canvas · design tokens (alpha) */
+:root {
+  --color-primary: #cc785c;
+  --color-primary-active: #a9583e;
+  --color-primary-disabled: #e6dfd8;
+  --color-ink: #141413;
+  --color-body: #3d3d3a;
+  --color-body-strong: #252523;
+  --color-muted: #6c6a64;
+  --color-muted-soft: #8e8b82;
+  --color-hairline: #e6dfd8;
+  --color-hairline-soft: #ebe6df;
+  --color-canvas: #faf9f5;
+  --color-surface-soft: #f5f0e8;
+  --color-surface-card: #efe9de;
+  --color-surface-cream-strong: #e8e0d2;
+  --color-surface-dark: #181715;
+  --color-surface-dark-elevated: #252320;
+  --color-surface-dark-soft: #1f1e1b;
+  --color-on-primary: #ffffff;
+  --color-on-dark: #faf9f5;
+  --color-on-dark-soft: #a09d96;
+  --color-accent-teal: #5db8a6;
+  --color-accent-amber: #e8a55a;
+  --color-success: #5db872;
+  --color-warning: #d4a017;
+  --color-error: #c64545;
+
+  --font-display: "Cormorant Garamond", "Noto Serif SC", serif;
+  --font-sans: Inter, "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --display-weight: 500;
+
+  --space-xxs: 4px;   --space-xs: 8px;
+  --space-sm: 12px;   --space-md: 16px;
+  --space-lg: 24px;   --space-xl: 32px;
+  --space-xxl: 48px;  --space-section: 96px;
+
+  --radius-xs: 4px;   --radius-sm: 6px;
+  --radius-md: 8px;   --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+  --radius-full: 9999px;
+}
+/* 展示字体换用授权字体时，把 --display-weight 设为 400 */</pre>
+      </div>
+      <div class="code-pane">
+        <div class="bar"><span class="nm">tokens.json</span><button class="btn btn-code" data-copy-target="jsonCode">复制</button></div>
+        <pre id="jsonCode">{
+  "name": "Warm Canvas",
+  "version": "alpha",
+  "colors": {
+    "primary": "#cc785c",
+    "primary-active": "#a9583e",
+    "primary-disabled": "#e6dfd8",
+    "ink": "#141413",
+    "body": "#3d3d3a",
+    "body-strong": "#252523",
+    "muted": "#6c6a64",
+    "muted-soft": "#8e8b82",
+    "hairline": "#e6dfd8",
+    "hairline-soft": "#ebe6df",
+    "canvas": "#faf9f5",
+    "surface-soft": "#f5f0e8",
+    "surface-card": "#efe9de",
+    "surface-cream-strong": "#e8e0d2",
+    "surface-dark": "#181715",
+    "surface-dark-elevated": "#252320",
+    "surface-dark-soft": "#1f1e1b",
+    "on-primary": "#ffffff",
+    "on-dark": "#faf9f5",
+    "on-dark-soft": "#a09d96",
+    "accent-teal": "#5db8a6",
+    "accent-amber": "#e8a55a",
+    "success": "#5db872",
+    "warning": "#d4a017",
+    "error": "#c64545"
+  },
+  "typography": {
+    "display-xl": { "fontSize": "64px", "fontWeight": 400,
+      "lineHeight": 1.05, "letterSpacing": "-1.5px" },
+    "display-lg": { "fontSize": "48px", "fontWeight": 400,
+      "lineHeight": 1.1, "letterSpacing": "-1px" },
+    "display-md": { "fontSize": "36px", "fontWeight": 400,
+      "lineHeight": 1.15, "letterSpacing": "-0.5px" },
+    "display-sm": { "fontSize": "28px", "fontWeight": 400,
+      "lineHeight": 1.2, "letterSpacing": "-0.3px" },
+    "body-md": { "fontSize": "16px", "fontWeight": 400,
+      "lineHeight": 1.55 },
+    "body-sm": { "fontSize": "14px", "fontWeight": 400,
+      "lineHeight": 1.55 },
+    "code": { "fontSize": "14px", "fontWeight": 400,
+      "lineHeight": 1.6 }
+  },
+  "radius": { "xs": "4px", "sm": "6px", "md": "8px",
+    "lg": "12px", "xl": "16px", "pill": "9999px" },
+  "spacing": { "xxs": "4px", "xs": "8px", "sm": "12px",
+    "md": "16px", "lg": "24px", "xl": "32px",
+    "xxl": "48px", "section": "96px" }
+}</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 9 · 奶油画布：布局 ========== -->
+<section class="band band-canvas" id="layout">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Layout · Responsive</p>
+      <h2 class="type-display-lg">12 列网格，收窄时减列数</h2>
+      <p class="type-body-md section-lead">单一的 12 列网格，内容宽度封顶 1200px。收窄时减少列数，而不是把卡片缩小。</p>
+    </div>
+    <div class="grid cols-4" style="margin-bottom:var(--space-xxl);">
+      <div class="feature-card"><div class="type-title-sm">内容宽度</div><p class="type-body-sm" style="margin-top:6px;">最大约 1200px，居中。</p></div>
+      <div class="feature-card"><div class="type-title-sm">栅格</div><p class="type-body-sm" style="margin-top:6px;">12 列。首屏常用 6 / 6 分栏：标题在左，插图或代码窗口在右。</p></div>
+      <div class="feature-card"><div class="type-title-sm">分段间距</div><p class="type-body-sm" style="margin-top:6px;">96px（section）。移动端本页取 64px。</p></div>
+      <div class="feature-card"><div class="type-title-sm">卡片内边距</div><p class="type-body-sm" style="margin-top:6px;">特性卡、定价卡、对比卡 32px；代码窗口卡 24px；连接器卡 20px。</p></div>
+    </div>
+
+    <h3 class="subhead">网格的列数变化 <span class="en">Grid columns</span></h3>
+    <div class="grid cols-3">
+      <div class="feature-card"><div class="type-title-sm">feature-card</div><p class="type-body-sm" style="margin-top:6px;">桌面 3 列 · 平板 2 列 · 移动 1 列</p></div>
+      <div class="feature-card"><div class="type-title-sm">connector-tile</div><p class="type-body-sm" style="margin-top:6px;">桌面 4 或 6 列 · 平板 3 列 · 移动 2 列</p></div>
+      <div class="feature-card"><div class="type-title-sm">pricing-tier-card</div><p class="type-body-sm" style="margin-top:6px;">桌面 3 列 · 平板 2 列 · 移动 1 列</p></div>
+    </div>
+    <p class="type-body-sm muted" style="margin-top:var(--space-md);">规范的网格说明里写连接器卡平板 2 列，断点表里写 3 列。本页取断点表。</p>
+
+    <h3 class="subhead">断点 <span class="en">Breakpoints</span></h3>
+    <div class="model-comparison-card" style="overflow-x:auto;">
+      <table class="tbl" style="color:var(--color-body);">
+        <thead><tr><th style="color:var(--color-muted);border-bottom-color:var(--color-hairline);">名称</th><th style="color:var(--color-muted);border-bottom-color:var(--color-hairline);">宽度</th><th style="color:var(--color-muted);border-bottom-color:var(--color-hairline);">变化</th></tr></thead>
+        <tbody style="font-size:13px;">
+          <tr><td style="color:var(--color-ink);border-bottom-color:var(--color-hairline-soft);">Mobile</td><td style="color:var(--color-ink);border-bottom-color:var(--color-hairline-soft);">&lt; 768px</td><td style="color:var(--color-body);border-bottom-color:var(--color-hairline-soft);">汉堡导航；首屏 h1 从 64px 缩到 32px；插图卡叠到内容下方；特性卡 1 列；连接器卡 2 列；定价 1 列；页脚 4 列变 1 列。</td></tr>
+          <tr><td style="color:var(--color-ink);border-bottom-color:var(--color-hairline-soft);">Tablet</td><td style="color:var(--color-ink);border-bottom-color:var(--color-hairline-soft);">768–1024px</td><td style="color:var(--color-body);border-bottom-color:var(--color-hairline-soft);">顶部导航保持横向但收紧；特性卡 2 列；连接器卡 3 列；定价 2 列。</td></tr>
+          <tr><td style="color:var(--color-ink);border-bottom-color:var(--color-hairline-soft);">Desktop</td><td style="color:var(--color-ink);border-bottom-color:var(--color-hairline-soft);">1024–1440px</td><td style="color:var(--color-body);border-bottom-color:var(--color-hairline-soft);">完整顶部导航；特性卡 3 列；连接器卡 4 或 6 列；定价 3 列。</td></tr>
+          <tr><td style="color:var(--color-ink);">Wide</td><td style="color:var(--color-ink);">&gt; 1440px</td><td style="color:var(--color-body);">与桌面相同，外侧留白更多；内容宽度封顶 1200px。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid cols-2" style="margin-top:var(--space-xxl);gap:var(--space-xxl);">
+      <div>
+        <h3 class="subhead" style="margin-top:0;">收窄策略 <span class="en">Narrowing</span></h3>
+        <ul class="rule-list">
+          <li><span>顶部导航在 768px 以下收成汉堡按钮，菜单展开为整屏奶油色面板。</span></li>
+          <li><span>首屏 6 / 6 网格变成单列：先是 h1、副标题与按钮，然后是插图或产品卡。</span></li>
+          <li><span>特性卡网格减少列数，不缩小卡片。</span></li>
+          <li><span>定价卡 4 列、2 列、1 列依次收窄；主打档的深色表面在每个断点都保持醒目。</span></li>
+          <li><span>代码窗口卡在卡片内部横向滚动，不折行，任何断点下都保持可读。</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="subhead" style="margin-top:0;">触控尺寸与图像 <span class="en">Touch &amp; imagery</span></h3>
+        <ul class="rule-list">
+          <li><span>主按钮至少 40 × 40px，输入框高 40px。</span></li>
+          <li><span>圆形图标按钮正好 36 × 36px，略低于 WCAG 建议的 44px，视觉上居中。</span></li>
+          <li><span>连接器卡整张可点，实际点击面积远大于 44px。</span></li>
+          <li><span>深色卡里的代码保持固定字号，移动端横向滚动。</span></li>
+          <li><span>首屏插图等比缩放，线稿的描边在移动端略变细。头像在所有断点都裁成圆形。</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 10 · 奶油卡片：规则 ========== -->
+<section class="band band-cream" id="rules">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="section-kicker">Do · Don't · 使用规则</p>
+      <h2 class="type-display-lg">守住三者的分工</h2>
+      <p class="type-body-md section-lead">奶油、珊瑚、深色三者的分工是底线，其余的取舍都可以回到这一页。</p>
+    </div>
+    <div class="grid cols-2" style="gap:var(--space-xl);">
+      <div class="feature-card">
+        <div class="type-title-md" style="margin-bottom:var(--space-md);">应该 Do</div>
+        <ul class="rule-list">
+          <li><span><b>每个页面都以奶油画布为底。</b>纯白会让页面像其他 AI 工具，暖调才是品牌的区分点。</span></li>
+          <li><span><b>展示标题一律用衬线体，正文配无衬线体。</b>展示字号的负字距不可省略。</span></li>
+          <li><span><b>珊瑚色只留给主按钮和整幅珊瑚 callout 卡。</b>不要把别的强调也涂成珊瑚色。</span></li>
+          <li><span><b>用深色产品卡和代码窗口卡展示真实界面。</b>能展示真实代码，就不画示意图。</span></li>
+          <li><span><b>奶油的特性卡与深色的产品卡交替成带。</b>这种反差就是页面节奏。</span></li>
+          <li><span><b>主要分段之间统一留 96px。</b></span></li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <div class="type-title-md" style="margin-bottom:var(--space-md);">不要 Don't</div>
+        <ul class="rule-list no">
+          <li><span><b>画布不用冷灰或纯白。</b>奶油色就是品牌。</span></li>
+          <li><span><b>展示标题不加粗。</b>衬线体 700 显得夸张，系统停在 400。</span></li>
+          <li><span><b>不用冷蓝或饱和青色做品牌强调色。</b>珊瑚色才是品牌的电压。</span></li>
+          <li><span><b>不要到处涂珊瑚色。</b>它在单个元素上要稀缺，只在整幅卡片上大面积出现。</span></li>
+          <li><span><b>展示标题不用 Inter。</b>衬线体的性格就是品牌的声音。</span></li>
+          <li><span><b>相邻两段不重复同一种表面。</b>顺序是奶油、奶油卡、深色、奶油、珊瑚、深色页脚。</span></li>
+          <li><span><b>不添加系统之外的悬停样式。</b>主按钮按下时变深，其他都不变。</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="margin-top:var(--space-xxl);gap:var(--space-xl);">
+      <div>
+        <h3 class="subhead" style="margin-top:0;">迭代约定 <span class="en">Conventions</span></h3>
+        <ul class="rule-list">
+          <li><span>一次只改一个组件，用规范里的键名引用，如 feature-card、code-window-card。</span></li>
+          <li><span>变体（-active、-disabled、-focused）单独成条。</span></li>
+          <li><span>一律引用令牌，不写内联的十六进制值。</span></li>
+          <li><span>只记录默认态与按下态，不写悬停。</span></li>
+          <li><span>展示标题保持衬线 400 加负字距，正文保持无衬线 400。</span></li>
+          <li><span>奶油、珊瑚、深色是基调，不引入紫色卡片、绿色分段这类第四种表面色。</span></li>
+          <li><span>需要强调时，优先加大衬线字号，而不是加粗。</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="subhead" style="margin-top:0;">已知缺口 <span class="en">Known gaps</span></h3>
+        <ul class="rule-list no">
+          <li><span>展示字体与正文字体是授权字体，没有公开网页版本，本页用 Cormorant Garamond、Inter 作替代。</span></li>
+          <li><span>原系统里的品牌放射形标志没有被定义成令牌，本页也没有复刻，页面左上角只用文字字标。</span></li>
+          <li><span>动效与过渡时长不在范围内，包括对话消息出现、代码打字效果与智能体流程图动画。</span></li>
+          <li><span>表单校验只有聚焦态，错误与成功态需要在真实的注册或反馈流程里确认后补充。</span></li>
+          <li><span>聊天界面特有的组件（消息气泡、文件芯片、会话历史侧栏）不在这份营销界面规范里。</span></li>
+          <li><span>没有定义深色主题。深色只用于产品表面，所以本页始终是奶油底。</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 11 · 珊瑚 callout ========== -->
+<section class="band band-canvas" style="padding-top:var(--space-section);padding-bottom:0;">
+  <div class="wrap">
+    <div class="cta-band-coral">
+      <p class="type-caption-uppercase" style="opacity:.85;letter-spacing:1.5px;">Get started</p>
+      <h2 class="type-display-lg" style="color:var(--color-on-primary);margin-top:var(--space-md);">从奶油画布开始搭建</h2>
+      <p class="type-body-md section-lead" style="color:var(--color-on-primary);opacity:.92;max-width:620px;">复制 CSS 变量，把 25 个颜色、14 级字体、7 档圆角和 8 档间距带进项目。组件的定义留在设计规范里，本页是它们的渲染。</p>
+      <div class="row" style="margin-top:var(--space-xl);">
+        <a class="btn btn-on-coral" href="#tokens">查看 tokens.css</a>
+        <a class="btn btn-text-link" href="#top" style="color:var(--color-on-primary);">回到顶部 ↑</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 12 · 深色页脚 ========== -->
+<footer class="band band-dark" style="padding:var(--space-section) 0 var(--space-xxl);margin-top:var(--space-section);">
+  <div class="wrap">
+    <div class="grid cols-2 footer-grid" style="gap:var(--space-xxl);">
+      <div>
+        <div class="nav-brand" style="color:var(--color-on-dark);">Warm Canvas</div>
+        <p class="type-body-sm" style="color:var(--color-on-dark-soft);margin-top:var(--space-md);max-width:280px;">暖色画布设计系统，版本 alpha。<br/>依据所提供的 DESIGN.md 整理，不包含任何品牌标志。字体授权与替代方案见「字体」一节。</p>
+      </div>
+      <div class="grid cols-4" style="gap:var(--space-lg);">
+        <div><div class="type-caption-uppercase" style="color:var(--color-on-dark-soft);margin-bottom:var(--space-md);">基础</div><div style="display:grid;gap:8px;"><a class="nav-link" style="color:var(--color-on-dark);" href="#colors">色彩</a><a class="nav-link" style="color:var(--color-on-dark);" href="#type">字体</a><a class="nav-link" style="color:var(--color-on-dark);" href="#space">间距与圆角</a><a class="nav-link" style="color:var(--color-on-dark);" href="#contrast">对比度检查</a></div></div>
+        <div><div class="type-caption-uppercase" style="color:var(--color-on-dark-soft);margin-bottom:var(--space-md);">组件</div><div style="display:grid;gap:8px;"><a class="nav-link" style="color:var(--color-on-dark);" href="#components">按钮与导航</a><a class="nav-link" style="color:var(--color-on-dark);" href="#components">表单与标签</a><a class="nav-link" style="color:var(--color-on-dark);" href="#components">卡片</a><a class="nav-link" style="color:var(--color-on-dark);" href="#tokens">号召带与页脚</a></div></div>
+        <div><div class="type-caption-uppercase" style="color:var(--color-on-dark-soft);margin-bottom:var(--space-md);">指南</div><div style="display:grid;gap:8px;"><a class="nav-link" style="color:var(--color-on-dark);" href="#layout">布局与响应式</a><a class="nav-link" style="color:var(--color-on-dark);" href="#rules">使用规则</a><a class="nav-link" style="color:var(--color-on-dark);" href="#rules">已知缺口</a></div></div>
+        <div><div class="type-caption-uppercase" style="color:var(--color-on-dark-soft);margin-bottom:var(--space-md);">令牌</div><div style="display:grid;gap:8px;"><a class="nav-link" style="color:var(--color-on-dark);" href="#tokens">tokens.css</a><a class="nav-link" style="color:var(--color-on-dark);" href="#tokens">tokens.json</a></div></div>
+      </div>
+    </div>
+    <p class="type-body-sm" style="color:var(--color-on-dark-soft);margin-top:var(--space-xxl);padding-top:var(--space-lg);border-top:1px solid rgba(250,249,245,.1);">Warm Canvas · alpha · 奶油画布 / 珊瑚 / 深色产品面 · 衬线展示 + 人文无衬线正文</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var toastEl = $('#toast'), timer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(timer);
+    timer = setTimeout(function () { toastEl.classList.remove('show'); }, 1800);
+  }
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { toast('已复制 ' + (text.length > 30 ? '代码' : text)); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast('已复制 ' + (text.length > 30 ? '代码' : text)); } catch (e) { toast('复制失败，请手动选择'); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  /* ---- 色板：点击复制 ---- */
+  var swatches = {
+    'sw-brand': [
+      ['primary', '#cc785c', 'dark'], ['primary-active', '#a9583e', 'dark'],
+      ['primary-disabled', '#e6dfd8', 'light'], ['accent-teal', '#5db8a6', 'light'],
+      ['accent-amber', '#e8a55a', 'light']
+    ],
+    'sw-surface': [
+      ['canvas', '#faf9f5', 'light'], ['surface-soft', '#f5f0e8', 'light'],
+      ['surface-card', '#efe9de', 'light'], ['surface-cream-strong', '#e8e0d2', 'light'],
+      ['hairline', '#e6dfd8', 'light'], ['hairline-soft', '#ebe6df', 'light'],
+      ['surface-dark', '#181715', 'dark'], ['surface-dark-elevated', '#252320', 'dark'],
+      ['surface-dark-soft', '#1f1e1b', 'dark']
+    ],
+    'sw-text': [
+      ['ink', '#141413', 'dark'], ['body', '#3d3d3a', 'dark'],
+      ['body-strong', '#252523', 'dark'], ['muted', '#6c6a64', 'dark'],
+      ['muted-soft', '#8e8b82', 'dark'], ['on-primary', '#ffffff', 'light'],
+      ['on-dark', '#faf9f5', 'light'], ['on-dark-soft', '#a09d96', 'dark']
+    ],
+    'sw-semantic': [
+      ['success', '#5db872', 'dark'], ['warning', '#d4a017', 'light'],
+      ['error', '#c64545', 'dark']
+    ]
+  };
+  Object.keys(swatches).forEach(function (id) {
+    var box = document.getElementById(id);
+    if (!box) return;
+    swatches[id].forEach(function (s) {
+      var el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'swatch ' + s[2];
+      el.style.background = s[1];
+      el.innerHTML = '<span class="nm">' + s[0] + '</span><span class="hx">' + s[1] + '</span>';
+      el.addEventListener('click', function () { copy(s[1]); });
+      box.appendChild(el);
+    });
+  });
+
+  /* ---- 对比度表 ---- */
+  var contrast = [
+    ['标题与主要文字', 'ink / canvas', '#141413', '#faf9f5', '17.50:1', 'AAA'],
+    ['强调段落', 'body-strong / canvas', '#252523', '#faf9f5', '14.58:1', 'AAA'],
+    ['正文', 'body / canvas', '#3d3d3a', '#faf9f5', '10.34:1', 'AAA'],
+    ['次要文字', 'muted / canvas', '#6c6a64', '#faf9f5', '5.13:1', 'AA'],
+    ['说明与版权行', 'muted-soft / canvas', '#8e8b82', '#faf9f5', '3.23:1', '仅大字'],
+    ['行内链接', 'primary / canvas', '#cc785c', '#faf9f5', '3.11:1', '仅大字'],
+    ['主按钮文字', 'on-primary / primary', '#ffffff', '#cc785c', '3.28:1', '仅大字'],
+    ['主按钮按下态', 'on-primary / primary-active', '#ffffff', '#a9583e', '5.06:1', 'AA'],
+    ['特性卡文字', 'ink / surface-card', '#141413', '#efe9de', '15.26:1', 'AAA'],
+    ['选中的标签', 'ink / surface-cream-strong', '#141413', '#e8e0d2', '14.07:1', 'AAA'],
+    ['深色表面正文', 'on-dark / surface-dark', '#faf9f5', '#181715', '17.00:1', 'AAA'],
+    ['页脚与次要标签', 'on-dark-soft / surface-dark', '#a09d96', '#181715', '6.62:1', 'AA'],
+    ['抬升卡片次要文字', 'on-dark-soft / dark-elevated', '#a09d96', '#252320', '5.79:1', 'AA'],
+    ['深色上的珊瑚链接', 'primary / surface-dark', '#cc785c', '#181715', '5.47:1', 'AA']
+  ];
+  var tbody = $('#contrastBody');
+  contrast.forEach(function (c) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + c[0] + '</td><td class="grade">' + c[1] + '</td>' +
+      '<td><span style="display:inline-block;padding:3px 9px;border-radius:4px;color:' + c[2] + ';background:' + c[3] + ';font-size:13px;">Aa 示例文字</span></td>' +
+      '<td class="grade">' + c[4] + '</td><td class="grade">' + c[5] + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  /* ---- 字阶 ---- */
+  var scale = [
+    ['display-xl', '64px · 400 · 1.05 · -1.5px（移动端 32px）', '首页 h1，衬线展示。', 'A page that reads like a column'],
+    ['display-lg', '48px · 400 · 1.1 · -1px', '分段标题。', 'Section heads set in serif'],
+    ['display-md', '36px · 400 · 1.15 · -0.5px', '小节标题、型号名称。', 'Sub-section heads'],
+    ['display-sm', '28px · 400 · 1.2 · -0.3px', '定价档位名、callout 标题。', 'Callout headlines'],
+    ['title-lg', '22px · 500 · 1.3 · 0', '定价方案的规格标签。', 'Plan size labels'],
+    ['title-md', '18px · 500 · 1.4 · 0', '特性卡标题、引导段落。', 'Feature card titles and intro paragraphs'],
+    ['title-sm', '16px · 500 · 1.4 · 0', '连接器卡标题、列表标签。', 'Connector tile titles'],
+    ['body-md', '16px · 400 · 1.55 · 0', '默认正文。', '正文保持 16px、1.55 行高，用有人文感的无衬线体。The running text sits at sixteen pixels.'],
+    ['body-sm', '14px · 400 · 1.55 · 0', '页脚正文与细则。', '页脚正文与细则，14px。Footer body and fine print.'],
+    ['caption', '13px · 500 · 1.4 · 0', '徽章标签与说明。', 'Badge labels and captions'],
+    ['caption-uppercase', '12px · 500 · 1.4 · 1.5px', '分类标签与 NEW 徽章。', 'New · category tag'],
+    ['code', '14px · 400 · 1.6 · 0', '代码块，等宽。', "const canvas = '#faf9f5';"],
+    ['button', '14px · 500 · 1 · 0', '标准按钮文字。', 'Button label'],
+    ['nav-link', '14px · 500 · 1.4 · 0', '顶部导航菜单项。', 'Product  Solutions  Pricing']
+  ];
+  var scaleBox = $('#typeScale');
+  scale.forEach(function (s) {
+    var d = document.createElement('div');
+    d.className = 'specimen';
+    d.innerHTML = '<div class="lbl"><b>' + s[0] + '</b>' + s[1] + '<br/><span style="color:var(--color-muted-soft);">' + s[2] + '</span></div>' +
+      '<div class="type-' + s[0] + '" style="word-break:break-word;">' + s[3] + '</div>';
+    scaleBox.appendChild(d);
+  });
+
+  /* ---- 间距 ---- */
+  var spacing = [
+    ['xxs', '4px', 4, '徽章纵向内边距。'], ['xs', '8px', 8, '分类标签纵向内边距。'],
+    ['sm', '12px', 12, '按钮纵向内边距，徽章横向内边距。'], ['md', '16px', 16, '常规元素间距。'],
+    ['lg', '24px', 24, '代码窗口卡的内边距。'], ['xl', '32px', 32, '特性卡、定价卡、对比卡的内边距。'],
+    ['xxl', '48px', 48, '珊瑚 callout 卡的内边距（正文 48px，YAML 32px）。'],
+    ['section', '96px', 96, '主要分段之间的间距。']
+  ];
+  var spBox = $('#spacingList');
+  spacing.forEach(function (s) {
+    var d = document.createElement('div');
+    d.className = 'sp-bar';
+    d.innerHTML = '<span class="k">' + s[0] + '</span><span class="v">' + s[1] + '</span>' +
+      '<span class="fill" style="width:' + Math.min(s[2] * 3, 290) + 'px;"></span><span class="d">' + s[3] + '</span>';
+    spBox.appendChild(d);
+  });
+
+  /* ---- 圆角 ---- */
+  var radii = [['xs', '4px', '徽章点缀、小型下拉。'], ['sm', '6px', '小型行内按钮、下拉项。'],
+    ['md', '8px', '标准按钮、输入框、分类标签。'], ['lg', '12px', '内容卡片：特性、定价、代码窗口、对比。'],
+    ['xl', '16px', '首屏插图容器与大型主打组件。'], ['pill', '9999px', '徽章、NEW 标签。'],
+    ['full', '9999px', '头像与图标按钮。']];
+  var rBox = $('#radiusList');
+  radii.forEach(function (r) {
+    var d = document.createElement('div');
+    d.className = 'radius-chip';
+    d.innerHTML = '<div class="box" style="border-radius:' + r[1] + ';"></div>' +
+      '<div class="k">' + r[0] + '</div><div class="v">' + r[1] + '</div>';
+    d.title = r[2];
+    rBox.appendChild(d);
+  });
+
+  /* ---- 标签切换 ---- */
+  var tabs = document.querySelectorAll('[data-tab]');
+  Array.prototype.forEach.call(tabs, function (t) {
+    t.addEventListener('click', function () {
+      Array.prototype.forEach.call(tabs, function (x) { x.classList.remove('is-active'); });
+      t.classList.add('is-active');
+    });
+  });
+
+  /* ---- 复制按钮 ---- */
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-copy], [data-copy-target]');
+    if (!el) return;
+    if (el.dataset.copy) { copy(el.dataset.copy); return; }
+    var target = document.getElementById(el.dataset.copyTarget);
+    if (target) copy(target.textContent);
+  });
+})();
+</script>
+</body>
+</html>
